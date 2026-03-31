@@ -88,6 +88,15 @@ export class AuthService {
     return auth.currentUser;
   }
 
+  getCurrentUserPromise(): Promise<User | null> {
+    return new Promise((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
+  }
+
   onAuthStateChanged(callback: (user: User | null) => void) {
     return onAuthStateChanged(auth, callback);
   }
