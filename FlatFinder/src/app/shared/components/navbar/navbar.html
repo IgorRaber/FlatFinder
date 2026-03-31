@@ -1,1 +1,50 @@
-<p>navbar works!</p>
+<div class="sidebar-container">
+
+  <!-- Logo -->
+  <div class="logo">
+    <mat-icon>apartment</mat-icon>
+    <span>FlatFinder</span>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="nav-links">
+    <a routerLink="/home" routerLinkActive="active">
+      <mat-icon>home</mat-icon>
+      <span>Home</span>
+    </a>
+
+    <a routerLink="/profile" routerLinkActive="active">
+      <mat-icon>person</mat-icon>
+      <span>Profile</span>
+    </a>
+
+    <a routerLink="/my-flats" routerLinkActive="active">
+      <mat-icon>business</mat-icon>
+      <span>My Flats</span>
+    </a>
+
+    <a routerLink="/favourites" routerLinkActive="active">
+      <mat-icon>favorite</mat-icon>
+      <span>Favourites</span>
+    </a>
+
+    <a routerLink="/flats/new" routerLinkActive="active">
+      <mat-icon>add_home</mat-icon>
+      <span>New Flat</span>
+    </a>
+
+    <a routerLink="/admin/users" routerLinkActive="active">
+      <mat-icon>admin_panel_settings</mat-icon>
+      <span>Admin</span>
+    </a>
+  </nav>
+
+  <!-- Bottom section -->
+  <div class="sidebar-footer">
+    <button mat-stroked-button (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Logout
+    </button>
+  </div>
+
+</div>

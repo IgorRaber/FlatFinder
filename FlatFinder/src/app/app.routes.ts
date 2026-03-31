@@ -19,7 +19,7 @@ export const routes: Routes = [
     path: '',
     loadComponent: () => import('./core/layouts/main-layout/main-layout').then(m => m.MainLayout),
     children: [
-      { path: 'home', loadComponent: () => import('./features/home/flat-search/flat-search').then(m => m.FlatSearch) },
+      {path: 'home',loadComponent: () =>import('./features/home/flat-search/flat-search').then(m => m.FlatSearch)},
       { path: 'flats/new', loadComponent: () => import('./features/flats/flat-form/flat-form').then(m => m.FlatForm) },
       { path: 'flats/:id', loadComponent: () => import('./features/flats/flat-detail/flat-detail').then(m => m.FlatDetail) },
       { path: 'flats/:id/edit', loadComponent: () => import('./features/flats/flat-form/flat-form').then(m => m.FlatForm) },
