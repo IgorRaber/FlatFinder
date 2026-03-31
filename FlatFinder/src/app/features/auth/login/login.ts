@@ -65,13 +65,71 @@ export class Login {
         message = 'Incorrect password';
       } else if (error.code === 'auth/invalid-email') {
         message = 'Invalid email address';
+      } else if (error.code === 'auth/invalid-credential') {
+        message = 'Invalid email or password';
       }
 
       this.snackBar.open(message, 'Close', { duration: 4000 });
-
     } finally {
       this.isLoading = false;
     }
   }
-}
 
+  async loginWithGoogle(): Promise<void> {
+    this.isLoading = true;
+
+    try {
+      await this.authService.loginWithGoogle();
+      this.snackBar.open('Google login successful', 'Close', { duration: 3000 });
+      await this.router.navigate(['/home']);
+    } catch (error: any) {
+      let message = 'Google login failed';
+
+      if (error.code === 'auth/popup-closed-by-user') {
+        message = 'Google sign-in was cancelled';
+      } else if (error.code === 'auth/popup-blocked') {
+        message = 'Popup was blocked by the browser';
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        message = 'Another sign-in popup is already open';
+      }
+
+      this.snackBar.open(message, 'Close', { duration: 4000 });
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async onForgotPassword(): Promise<void> {
+    const email = this.form.controls.email.value?.trim();
+
+    if (!email) {
+      this.form.controls.email.markAsTouched();
+      this.snackBar.open('Enter your email first', 'Close', { duration: 3000 });
+      return;
+    }
+
+    if (this.form.controls.email.invalid) {
+      this.snackBar.open('Enter a valid email address', 'Close', { duration: 3000 });
+      return;
+    }
+
+    try {
+      await this.authService.sendResetPasswordEmail(email);
+      this.snackBar.open(
+        'If this email is registered, a reset link has been sent',
+        'Close',
+        { duration: 5000 }
+      );
+    } catch (error: any) {
+      let message = 'Could not send reset email';
+
+      if (error.code === 'auth/invalid-email') {
+        message = 'Invalid email address';
+      } else if (error.code === 'auth/too-many-requests') {
+        message = 'Too many attempts. Please try again later';
+      }
+
+      this.snackBar.open(message, 'Close', { duration: 4000 });
+    }
+  }
+}

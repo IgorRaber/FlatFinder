@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import {
   User,
+  GoogleAuthProvider,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  sendPasswordResetEmail,
   signOut,
   onAuthStateChanged,
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 
 @Injectable({
@@ -37,9 +40,44 @@ export class AuthService {
       birthDate: data.birthDate,
       isAdmin: false,
       favourites: [],
+      provider: 'password',
     });
 
     return credential;
+  }
+
+  async loginWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+
+    const credential = await signInWithPopup(auth, provider);
+    const user = credential.user;
+
+    const userRef = doc(db, 'users', user.uid);
+    const existingUser = await getDoc(userRef);
+
+    if (!existingUser.exists()) {
+      const displayName = user.displayName ?? '';
+      const [firstName = '', ...rest] = displayName.split(' ');
+      const lastName = rest.join(' ');
+
+      await setDoc(userRef, {
+        email: user.email ?? '',
+        firstName,
+        lastName,
+        birthDate: '',
+        isAdmin: false,
+        favourites: [],
+        provider: 'google',
+      });
+    }
+
+    return credential;
+  }
+
+  async sendResetPasswordEmail(email: string) {
+    return sendPasswordResetEmail(auth, email);
   }
 
   logout() {
