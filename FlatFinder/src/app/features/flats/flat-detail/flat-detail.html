@@ -1,1 +1,70 @@
-<p>flat-detail works!</p>
+<nav class="navbar">
+  <div class="nav-center">
+    <a routerLink="/favourites">Favourites</a>
+    <a routerLink="/home">All Flats</a>
+    <a routerLink="/flats/new">New Flat</a>
+    <a routerLink="/my-flats">My Flats</a>
+    <a routerLink="/profile">Profile</a>
+  </div>
+</nav>
+
+<hr />
+
+<h1>{{ isEditMode ? 'Edit Flat' : 'Register a flat' }}</h1>
+
+<form (ngSubmit)="onSubmit()">
+  <div class="form-message" [style.color]="messageColor">{{ message }}</div>
+
+  <div>
+    <label for="city">City</label><br />
+    <input type="text" id="city" name="city" [(ngModel)]="city" />
+  </div>
+
+  <div>
+    <label for="streetName">Street Name</label><br />
+    <input type="text" id="streetName" name="streetName" [(ngModel)]="streetName" />
+  </div>
+
+  <div>
+    <label for="streetNumber">Street Number</label><br />
+    <input type="text" id="streetNumber" name="streetNumber" [(ngModel)]="streetNumber" />
+  </div>
+
+  <div>
+    <label for="areaSize">Area Size (m²)</label><br />
+    <input type="number" id="areaSize" name="areaSize" min="0" step="1" [(ngModel)]="areaSize" />
+  </div>
+
+  <div class="checkbox-field">
+    <label for="hasAC">Has AC?</label>
+    <input type="checkbox" id="hasAC" name="hasAC" [(ngModel)]="hasAC" />
+  </div>
+
+  <div>
+    <label for="yearBuilt">Year Built</label><br />
+    <input type="number" id="yearBuilt" name="yearBuilt" min="1800" step="1" [(ngModel)]="yearBuilt" />
+  </div>
+
+  <div>
+    <label for="rentPrice">Rent Price ($)</label><br />
+    <input type="number" id="rentPrice" name="rentPrice" min="0" step="0.01" [(ngModel)]="rentPrice" />
+  </div>
+
+  <div>
+    <label for="dateAvailable">Available Date</label><br />
+    <input type="date" id="dateAvailable" name="dateAvailable" [(ngModel)]="dateAvailable" />
+  </div>
+
+  <button type="submit">
+    {{ isEditMode ? 'Save Changes' : 'Add Flat' }}
+  </button>
+</form>
+
+<button
+  *ngIf="isEditMode"
+  class="delete-btn"
+  type="button"
+  (click)="deleteFlat()"
+>
+  Delete Flat
+</button>

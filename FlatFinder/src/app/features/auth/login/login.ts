@@ -27,7 +27,7 @@ import { AuthService } from '../../../core/services/auth';
     MatIconModule
   ],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  styleUrls: ['./login.scss']
 })
 export class Login {
   private fb = inject(FormBuilder);
@@ -53,25 +53,32 @@ export class Login {
 
     try {
       const { email, password } = this.form.getRawValue();
+
       await this.authService.login(email, password);
-      this.snackBar.open('Login successful', 'Close', { duration: 3000 });
+
+      this.snackBar.open('Login successful', 'Close', {
+        duration: 3000
+      });
+
       await this.router.navigate(['/home']);
     } catch (error: any) {
       let message = 'Login failed';
 
-      if (error.code === 'auth/user-not-found') {
+      if (error?.code === 'auth/user-not-found') {
         message = 'No account found with this email';
-      } else if (error.code === 'auth/wrong-password') {
+      } else if (error?.code === 'auth/wrong-password') {
         message = 'Incorrect password';
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error?.code === 'auth/invalid-email') {
         message = 'Invalid email address';
+      } else if (error?.code === 'auth/invalid-credential') {
+        message = 'Invalid email or password';
       }
 
-      this.snackBar.open(message, 'Close', { duration: 4000 });
-
+      this.snackBar.open(message, 'Close', {
+        duration: 4000
+      });
     } finally {
       this.isLoading = false;
     }
   }
 }
-

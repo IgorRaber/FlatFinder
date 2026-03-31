@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { onAuthStateChanged, signOut, User } from 'firebase/auth';
+import { auth } from '../../../core/firebase/firebase';
 
 interface Flat {
   id: string;
@@ -17,18 +19,14 @@ interface Flat {
   createdAt: string;
 }
 
-interface Session {
-  userId: string;
-}
-
 @Component({
   selector: 'app-flat-form',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './flat-form.html',
-  styleUrl: './flat-form.scss'
+  styleUrls: ['./flat-form.scss']
 })
-export class FlatForm {
+export class FlatForm implements OnInit {
   message = '';
   messageColor = '';
 
@@ -41,7 +39,32 @@ export class FlatForm {
   rentPrice: number | null = null;
   dateAvailable = '';
 
-  constructor(private router: Router) {}
+  isEditMode = false;
+  flatId: string | null = null;
+  currentFlat: Flat | null = null;
+  currentUser: User | null = null;
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        this.router.navigate(['/login']);
+        return;
+      }
+
+      this.currentUser = user;
+      this.flatId = this.route.snapshot.paramMap.get('id');
+      this.isEditMode = !!this.flatId;
+
+      if (this.isEditMode) {
+        this.loadFlatForEdit();
+      }
+    });
+  }
 
   clearMessage(): void {
     this.message = '';
@@ -58,11 +81,6 @@ export class FlatForm {
     this.messageColor = 'green';
   }
 
-  getSession(): Session | null {
-    const data = localStorage.getItem('session');
-    return data ? JSON.parse(data) : null;
-  }
-
   getFlats(): Flat[] {
     const data = localStorage.getItem('flats');
     return data ? JSON.parse(data) : [];
@@ -76,8 +94,44 @@ export class FlatForm {
     return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
   }
 
+  loadFlatForEdit(): void {
+    if (!this.currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const flats = this.getFlats();
+    const flat = flats.find((f) => f.id === this.flatId);
+
+    if (!flat) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    if (flat.ownerId !== this.currentUser.uid) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    this.currentFlat = flat;
+
+    this.city = flat.city;
+    this.streetName = flat.streetName;
+    this.streetNumber = flat.streetNumber;
+    this.areaSize = flat.areaSize;
+    this.hasAC = !!flat.hasAC;
+    this.yearBuilt = flat.yearBuilt;
+    this.rentPrice = flat.rentPrice;
+    this.dateAvailable = flat.dateAvailable;
+  }
+
   onSubmit(): void {
     this.clearMessage();
+
+    if (!this.currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
 
     const city = this.city.trim();
     const streetName = this.streetName.trim();
@@ -123,10 +177,35 @@ export class FlatForm {
       return;
     }
 
-    const session = this.getSession();
+    const flats = this.getFlats();
 
-    if (!session) {
-      this.showError('Session not found. Please log in again.');
+    if (this.isEditMode) {
+      const index = flats.findIndex((f) => f.id === this.flatId);
+
+      if (index === -1) {
+        this.showError('Flat not found.');
+        return;
+      }
+
+      if (flats[index].ownerId !== this.currentUser.uid) {
+        this.showError('You are not allowed to edit this flat.');
+        return;
+      }
+
+      flats[index] = {
+        ...flats[index],
+        city,
+        streetName,
+        streetNumber,
+        areaSize,
+        hasAC: this.hasAC,
+        yearBuilt,
+        rentPrice,
+        dateAvailable
+      };
+
+      this.setFlats(flats);
+      this.router.navigate(['/home']);
       return;
     }
 
@@ -140,21 +219,45 @@ export class FlatForm {
       yearBuilt,
       rentPrice,
       dateAvailable,
-      ownerId: session.userId,
+      ownerId: this.currentUser.uid,
       createdAt: new Date().toISOString()
     };
 
-    const flats = this.getFlats();
     flats.push(newFlat);
     this.setFlats(flats);
-
-    this.showSuccess('Flat created successfully.');
-
-    this.router.navigate(['/all-flats']);
+    this.router.navigate(['/home']);
   }
 
-  logout(): void {
-    localStorage.removeItem('session');
+  deleteFlat(): void {
+    if (!this.currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (!this.isEditMode || !this.currentFlat) {
+      return;
+    }
+
+    if (this.currentFlat.ownerId !== this.currentUser.uid) {
+      this.router.navigate(['/home']);
+      return;
+    }
+
+    const confirmed = window.confirm('Are you sure you want to delete your flat?');
+
+    if (!confirmed) {
+      return;
+    }
+
+    const flats = this.getFlats();
+    const updatedFlats = flats.filter((f) => f.id !== this.currentFlat?.id);
+
+    this.setFlats(updatedFlats);
+    this.router.navigate(['/home']);
+  }
+
+  async logout(): Promise<void> {
+    await signOut(auth);
     this.router.navigate(['/login']);
   }
 }
