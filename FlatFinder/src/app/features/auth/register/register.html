@@ -1,1 +1,126 @@
-<p>register works!</p>
+<div class="auth-shell">
+  <div class="auth-brand">
+    <div class="brand-content">
+      <h1>FlatFinder</h1>
+      <p>
+        Join a modern rental platform where landlords publish flats and renters find the right match.
+      </p>
+    </div>
+  </div>
+
+  <div class="auth-panel">
+    <mat-card class="auth-card register-card">
+      <div class="auth-header">
+        <h2>Create account</h2>
+        <p>Register to start exploring and managing flats</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>First name</mat-label>
+            <input matInput formControlName="firstName" />
+            @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+              <mat-error>First name is required</mat-error>
+            }
+            @if (form.controls.firstName.touched && form.controls.firstName.hasError('minlength')) {
+              <mat-error>First name must have at least 2 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Last name</mat-label>
+            <input matInput formControlName="lastName" />
+            @if (form.controls.lastName.touched && form.controls.lastName.hasError('required')) {
+              <mat-error>Last name is required</mat-error>
+            }
+            @if (form.controls.lastName.touched && form.controls.lastName.hasError('minlength')) {
+              <mat-error>Last name must have at least 2 characters</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Birth date</mat-label>
+          <input
+            matInput
+            [matDatepicker]="picker"
+            [max]="maxDate"
+            formControlName="birthDate"
+          />
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+
+          @if (form.controls.birthDate.touched && form.controls.birthDate.hasError('required')) {
+            <mat-error>Birth date is required</mat-error>
+          }
+          @if (form.controls.birthDate.touched && form.controls.birthDate.hasError('invalidAge')) {
+            <mat-error>You must be between 18 and 120 years old</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" />
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            <mat-error>Email is required</mat-error>
+          }
+          @if (form.controls.email.touched && form.controls.email.hasError('email')) {
+            <mat-error>Please enter a valid email address</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" />
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <mat-error>Password is required</mat-error>
+          }
+          @if (form.controls.password.touched && form.controls.password.hasError('strongPassword')) {
+            <mat-error>
+              Password must be at least 6 characters and include a letter, number, and symbol
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Confirm password</mat-label>
+          <input
+            matInput
+            [type]="hideConfirmPassword ? 'password' : 'text'"
+            formControlName="confirmPassword"
+          />
+          <button mat-icon-button matSuffix type="button" (click)="hideConfirmPassword = !hideConfirmPassword">
+            <mat-icon>{{ hideConfirmPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+          </button>
+
+          @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.hasError('required')) {
+            <mat-error>Please confirm your password</mat-error>
+          }
+          @if (form.controls.confirmPassword.touched && form.hasError('passwordMismatch')) {
+            <mat-error>Passwords do not match</mat-error>
+          }
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="auth-submit"
+          [disabled]="isLoading || form.invalid"
+        >
+          {{ isLoading ? 'Creating account...' : 'Create account' }}
+        </button>
+
+        <p class="auth-footer-text">
+          Already have an account?
+          <a routerLink="/login">Sign in</a>
+        </p>
+      </form>
+    </mat-card>
+  </div>
+</div>
