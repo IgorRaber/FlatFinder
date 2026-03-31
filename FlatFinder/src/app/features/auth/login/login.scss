@@ -56,10 +56,6 @@
   border: 1px solid rgba(15, 23, 42, 0.06);
 }
 
-.register-card {
-  max-width: 560px;
-}
-
 .auth-header {
   margin-bottom: 1.25rem;
 
@@ -93,17 +89,22 @@
   gap: 1rem;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
 mat-form-field {
   width: 100%;
 }
 
-.auth-submit {
+.auth-actions-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.5rem;
+}
+
+.forgot-password-btn {
+  font-weight: 600;
+}
+
+.auth-submit,
+.google-btn {
   height: 48px;
   border-radius: 14px;
   font-weight: 600;
@@ -135,12 +136,7 @@ mat-form-field {
     padding: 1rem;
   }
 
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-card,
-  .register-card {
+  .auth-card {
     max-width: 100%;
   }
 }

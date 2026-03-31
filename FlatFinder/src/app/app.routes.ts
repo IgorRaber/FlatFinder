@@ -1,17 +1,26 @@
 import { Routes } from '@angular/router';
+import { publicGuard } from './core/guards/public-guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
 
-  { path: 'login', loadComponent: () => import('./features/auth/login/login').then(m => m.Login) },
-  { path: 'register', loadComponent: () => import('./features/auth/register/register').then(m => m.Register) },
+  {
+    path: 'login',
+    canActivate: [publicGuard],
+    loadComponent: () => import('./features/auth/login/login').then(m => m.Login)
+  },
+  {
+    path: 'register',
+    canActivate: [publicGuard],
+    loadComponent: () => import('./features/auth/register/register').then(m => m.Register)
+  },
 
   {
     path: '',
     loadComponent: () =>
       import('./core/layouts/main-layout/main-layout').then((m) => m.MainLayout),
     children: [
-      { path: 'home', loadComponent: () => import('./features/home/flat-search/flat-search').then(m => m.FlatSearch) },
+      {path: 'home',loadComponent: () =>import('./features/home/flat-search/flat-search').then(m => m.FlatSearch)},
       { path: 'flats/new', loadComponent: () => import('./features/flats/flat-form/flat-form').then(m => m.FlatForm) },
       { path: 'flats/:id', loadComponent: () => import('./features/flats/flat-detail/flat-detail').then(m => m.FlatDetail) },
       { path: 'flats/:id/edit', loadComponent: () => import('./features/flats/flat-form/flat-form').then(m => m.FlatForm) },

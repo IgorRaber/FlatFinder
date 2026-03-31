@@ -119,7 +119,7 @@ export class Register {
       await this.authService.register({
         firstName: firstName!,
         lastName: lastName!,
-        birthDate: (birthDate as unknown) instanceof Date ? ((birthDate as unknown) as Date).toISOString() : String(birthDate),
+        birthDate: (birthDate as unknown as Date).toISOString(),
         email: email!,
         password: password!
       });

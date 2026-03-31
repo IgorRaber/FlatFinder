@@ -1,0 +1,263 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f5f7fb;
+}
+
+.home-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+}
+
+.content {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.content-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h1 {
+    margin: 0 0 0.35rem;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+  }
+}
+
+.filters-card {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1rem;
+}
+
+.filters-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.results-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 1.5rem;
+  min-height: 600px;
+}
+
+.flats-panel,
+.map-panel {
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #111827;
+  }
+}
+
+.flats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.flat-card {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1rem;
+  border-radius: 20px;
+  box-shadow: none;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.flat-card-image {
+  background: linear-gradient(135deg, rgba(103, 58, 183, 0.14), rgba(25, 118, 210, 0.14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #673ab7;
+  }
+}
+
+.flat-card-content {
+  padding: 1rem 1rem 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.flat-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1.4rem;
+    color: #111827;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+  }
+}
+
+.flat-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+
+  span {
+    padding: 0.35rem 0.7rem;
+    background: #f3f4f6;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: #374151;
+  }
+}
+
+.flat-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.map-panel {
+  min-height: 100%;
+}
+
+.map-placeholder {
+  height: 100%;
+  min-height: 520px;
+  border-radius: 18px;
+  border: 2px dashed rgba(103, 58, 183, 0.25);
+  background: linear-gradient(135deg, rgba(103, 58, 183, 0.04), rgba(25, 118, 210, 0.04));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+
+  mat-icon {
+    font-size: 52px;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 1rem;
+    color: #673ab7;
+  }
+
+  h3 {
+    margin: 0 0 0.5rem;
+    color: #111827;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    max-width: 320px;
+    line-height: 1.6;
+  }
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+@media (max-width: 1400px) {
+  .filters-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .results-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .map-panel {
+    min-height: 420px;
+  }
+}
+
+@media (max-width: 900px) {
+  .home-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .content-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flat-card {
+    grid-template-columns: 1fr;
+  }
+
+  .flat-card-content {
+    padding: 0 1rem 1rem;
+  }
+
+  .flat-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
