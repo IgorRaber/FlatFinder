@@ -1,1 +1,67 @@
-<p>my-flats works!</p>
+<div class="content-header">
+  <div>
+    <h1>My flats</h1>
+    <p>Manage the properties you created.</p>
+  </div>
+
+  <button mat-raised-button color="primary" routerLink="/flats/new">
+    <mat-icon>add</mat-icon>
+    New Flat
+  </button>
+</div>
+
+<div class="flats-panel">
+  <div class="panel-header">
+    <h2>Your properties</h2>
+    <mat-chip-set>
+      <mat-chip>{{ myFlats.length }} results</mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <div *ngIf="!myFlats.length" class="empty-state">
+    <mat-icon>home_work</mat-icon>
+    <h3>No flats yet</h3>
+    <p>You have not created any properties yet.</p>
+  </div>
+
+  <div *ngIf="myFlats.length" class="flats-list">
+    <mat-card class="flat-card" *ngFor="let flat of myFlats">
+      <div class="flat-card-image">
+        <mat-icon>home_work</mat-icon>
+      </div>
+
+      <div class="flat-card-content">
+        <div class="flat-card-top">
+          <div>
+            <h3>${{ flat.rentPrice }}</h3>
+            <p>{{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}</p>
+          </div>
+        </div>
+
+        <div class="flat-meta">
+          <span>{{ flat.areaSize }} m²</span>
+          <span>Built in {{ flat.yearBuilt }}</span>
+          <span>{{ flat.hasAC ? 'AC included' : 'No AC' }}</span>
+        </div>
+
+        <div class="flat-footer">
+          <span>Available: {{ flat.dateAvailable }}</span>
+
+          <div class="flat-actions">
+            <button mat-stroked-button [routerLink]="['/flats', flat.id]">
+              View Details
+            </button>
+
+            <button mat-raised-button color="primary" [routerLink]="['/flats', flat.id, 'edit']">
+              Edit
+            </button>
+
+            <button mat-stroked-button color="warn" (click)="deleteFlat(flat.id)">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</div>

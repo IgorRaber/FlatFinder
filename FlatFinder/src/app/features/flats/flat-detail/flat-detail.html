@@ -1,70 +1,80 @@
-<nav class="navbar">
-  <div class="nav-center">
-    <a routerLink="/favourites">Favourites</a>
-    <a routerLink="/home">All Flats</a>
-    <a routerLink="/flats/new">New Flat</a>
-    <a routerLink="/my-flats">My Flats</a>
-    <a routerLink="/profile">Profile</a>
-  </div>
-</nav>
+<div *ngIf="flat">
+  <div class="content-header">
+    <div>
+      <h1>Flat details</h1>
+      <p>See the full information about this property.</p>
+    </div>
 
-<hr />
-
-<h1>{{ isEditMode ? 'Edit Flat' : 'Register a flat' }}</h1>
-
-<form (ngSubmit)="onSubmit()">
-  <div class="form-message" [style.color]="messageColor">{{ message }}</div>
-
-  <div>
-    <label for="city">City</label><br />
-    <input type="text" id="city" name="city" [(ngModel)]="city" />
+    <button mat-stroked-button routerLink="/home">
+      Back to Home
+    </button>
   </div>
 
-  <div>
-    <label for="streetName">Street Name</label><br />
-    <input type="text" id="streetName" name="streetName" [(ngModel)]="streetName" />
+  <div class="detail-card">
+    <div class="detail-layout">
+      <div class="detail-image">
+        <mat-icon>apartment</mat-icon>
+      </div>
+
+      <div class="detail-info">
+        <div class="detail-top">
+          <div>
+            <h2>{{ flat.city }}</h2>
+            <p>{{ flat.streetName }}, {{ flat.streetNumber }}</p>
+          </div>
+
+          <strong>${{ flat.rentPrice }}</strong>
+        </div>
+
+        <div class="detail-meta">
+          <span>{{ flat.areaSize }} m²</span>
+          <span>{{ flat.hasAC ? 'AC included' : 'No AC' }}</span>
+          <span>Built in {{ flat.yearBuilt }}</span>
+          <span>Available: {{ flat.dateAvailable }}</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-box">
+            <h3>City</h3>
+            <p>{{ flat.city }}</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Street</h3>
+            <p>{{ flat.streetName }}, {{ flat.streetNumber }}</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Area size</h3>
+            <p>{{ flat.areaSize }} m²</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Year built</h3>
+            <p>{{ flat.yearBuilt }}</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Air conditioning</h3>
+            <p>{{ flat.hasAC ? 'Yes' : 'No' }}</p>
+          </div>
+
+          <div class="info-box">
+            <h3>Available date</h3>
+            <p>{{ flat.dateAvailable }}</p>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <button mat-stroked-button routerLink="/my-flats">
+            My Flats
+          </button>
+
+          <button mat-raised-button color="primary" [routerLink]="['/flats', flat.id, 'edit']">
+            Edit Flat
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div>
-    <label for="streetNumber">Street Number</label><br />
-    <input type="text" id="streetNumber" name="streetNumber" [(ngModel)]="streetNumber" />
-  </div>
-
-  <div>
-    <label for="areaSize">Area Size (m²)</label><br />
-    <input type="number" id="areaSize" name="areaSize" min="0" step="1" [(ngModel)]="areaSize" />
-  </div>
-
-  <div class="checkbox-field">
-    <label for="hasAC">Has AC?</label>
-    <input type="checkbox" id="hasAC" name="hasAC" [(ngModel)]="hasAC" />
-  </div>
-
-  <div>
-    <label for="yearBuilt">Year Built</label><br />
-    <input type="number" id="yearBuilt" name="yearBuilt" min="1800" step="1" [(ngModel)]="yearBuilt" />
-  </div>
-
-  <div>
-    <label for="rentPrice">Rent Price ($)</label><br />
-    <input type="number" id="rentPrice" name="rentPrice" min="0" step="0.01" [(ngModel)]="rentPrice" />
-  </div>
-
-  <div>
-    <label for="dateAvailable">Available Date</label><br />
-    <input type="date" id="dateAvailable" name="dateAvailable" [(ngModel)]="dateAvailable" />
-  </div>
-
-  <button type="submit">
-    {{ isEditMode ? 'Save Changes' : 'Add Flat' }}
-  </button>
-</form>
-
-<button
-  *ngIf="isEditMode"
-  class="delete-btn"
-  type="button"
-  (click)="deleteFlat()"
->
-  Delete Flat
-</button>
+</div>

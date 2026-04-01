@@ -1,123 +1,146 @@
-<div class="home-layout">
-  <aside class="sidebar">
-    <app-navbar></app-navbar>
-  </aside>
+<div class="content-header">
+  <div>
+    <h1>Find your next flat</h1>
+    <p>Search, filter and explore available rentals.</p>
+  </div>
 
-  <section class="content">
-    <div class="content-header">
-      <div>
-        <h1>Find your next flat</h1>
-        <p>Search, filter and explore available rentals.</p>
-      </div>
+  <button mat-raised-button color="primary" routerLink="/flats/new">
+    <mat-icon>add</mat-icon>
+    New Flat
+  </button>
+</div>
 
-      <button mat-raised-button color="primary">
-        <mat-icon>add</mat-icon>
-        New Flat
-      </button>
+<div class="filters-card">
+  <div class="filters-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Search by city or address</mat-label>
+      <input
+        matInput
+        placeholder="e.g. Vancouver, Main Street"
+        [(ngModel)]="searchTerm"
+        name="searchTerm"
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>City</mat-label>
+      <mat-select [(ngModel)]="city" name="city">
+        <mat-option value="">All cities</mat-option>
+        <mat-option value="vancouver">Vancouver</mat-option>
+        <mat-option value="burnaby">Burnaby</mat-option>
+        <mat-option value="richmond">Richmond</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Min price</mat-label>
+      <input
+        matInput
+        type="number"
+        placeholder="1500"
+        [(ngModel)]="minPrice"
+        name="minPrice"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Max price</mat-label>
+      <input
+        matInput
+        type="number"
+        placeholder="3000"
+        [(ngModel)]="maxPrice"
+        name="maxPrice"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Min area</mat-label>
+      <input
+        matInput
+        type="number"
+        placeholder="50"
+        [(ngModel)]="minArea"
+        name="minArea"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Sort by</mat-label>
+      <mat-select [(ngModel)]="sortBy" name="sortBy">
+        <mat-option value="">Newest</mat-option>
+        <mat-option value="price">Price</mat-option>
+        <mat-option value="city">City</mat-option>
+        <mat-option value="area">Area size</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="filters-actions">
+    <button mat-stroked-button type="button" (click)="resetFilters()">
+      Reset filters
+    </button>
+
+    <button mat-raised-button color="primary" type="button" (click)="applyFilters()">
+      Apply filters
+    </button>
+  </div>
+</div>
+
+<div class="results-layout">
+  <div class="flats-panel">
+    <div class="panel-header">
+      <h2>Available Flats</h2>
+      <mat-chip-set>
+        <mat-chip>{{ flats.length }} results</mat-chip>
+      </mat-chip-set>
     </div>
 
-    <div class="filters-card">
-      <div class="filters-grid">
-        <mat-form-field appearance="outline">
-          <mat-label>Search by city or address</mat-label>
-          <input matInput placeholder="e.g. Vancouver, Main Street" />
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
+    <div class="flats-list">
+      @for (flat of flats; track flat.id) {
+        <mat-card class="flat-card">
+          <div class="flat-card-image">
+            <mat-icon>home_work</mat-icon>
+          </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>City</mat-label>
-          <mat-select>
-            <mat-option value="">All cities</mat-option>
-            <mat-option value="vancouver">Vancouver</mat-option>
-            <mat-option value="burnaby">Burnaby</mat-option>
-            <mat-option value="richmond">Richmond</mat-option>
-          </mat-select>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Min price</mat-label>
-          <input matInput type="number" placeholder="1500" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Max price</mat-label>
-          <input matInput type="number" placeholder="3000" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Min area</mat-label>
-          <input matInput type="number" placeholder="50" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Sort by</mat-label>
-          <mat-select>
-            <mat-option value="price">Price</mat-option>
-            <mat-option value="city">City</mat-option>
-            <mat-option value="area">Area size</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <div class="filters-actions">
-        <button mat-stroked-button>Reset filters</button>
-        <button mat-raised-button color="primary">Apply filters</button>
-      </div>
-    </div>
-
-    <div class="results-layout">
-      <div class="flats-panel">
-        <div class="panel-header">
-          <h2>Available Flats</h2>
-          <mat-chip-set>
-            <mat-chip>{{ flats.length }} results</mat-chip>
-          </mat-chip-set>
-        </div>
-
-        <div class="flats-list">
-          @for (flat of flats; track flat.id) {
-            <mat-card class="flat-card">
-              <div class="flat-card-image">
-                <mat-icon>home_work</mat-icon>
+          <div class="flat-card-content">
+            <div class="flat-card-top">
+              <div>
+                <h3>${{ flat.rentPrice }}</h3>
+                <p>{{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}</p>
               </div>
 
-              <div class="flat-card-content">
-                <div class="flat-card-top">
-                  <div>
-                    <h3>\${{ flat.rentPrice }}</h3>
-                    <p>{{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}</p>
-                  </div>
+              <button mat-icon-button type="button">
+                <mat-icon>favorite_border</mat-icon>
+              </button>
+            </div>
 
-                  <button mat-icon-button>
-                    <mat-icon>favorite_border</mat-icon>
-                  </button>
-                </div>
+            <div class="flat-meta">
+              <span>{{ flat.areaSize }} m²</span>
+              <span>Built in {{ flat.yearBuilt }}</span>
+              <span>{{ flat.hasAC ? 'AC included' : 'No AC' }}</span>
+            </div>
 
-                <div class="flat-meta">
-                  <span>{{ flat.areaSize }} m²</span>
-                  <span>Built in {{ flat.yearBuilt }}</span>
-                  <span>{{ flat.hasAc ? 'AC included' : 'No AC' }}</span>
-                </div>
-
-                <div class="flat-footer">
-                  <span>Available: {{ flat.dateAvailable }}</span>
-                  <button mat-stroked-button>View Details</button>
-                </div>
-              </div>
-            </mat-card>
-          }
-        </div>
-      </div>
-
-      <div class="map-panel">
-        <div class="map-placeholder">
-          <mat-icon>map</mat-icon>
-          <h3>Map integration coming next</h3>
-          <p>
-            This area will show Google Maps with markers for the visible flats.
-          </p>
-        </div>
-      </div>
+            <div class="flat-footer">
+              <span>Available: {{ flat.dateAvailable }}</span>
+              <button mat-stroked-button [routerLink]="['/flats', flat.id]">
+                View Details
+              </button>
+            </div>
+          </div>
+        </mat-card>
+      }
     </div>
-  </section>
+  </div>
+
+  <div class="map-panel">
+    <div class="map-placeholder">
+      <mat-icon>map</mat-icon>
+      <h3>Map integration coming next</h3>
+      <p>
+        This area will show Google Maps with markers for the visible flats.
+      </p>
+    </div>
+  </div>
 </div>

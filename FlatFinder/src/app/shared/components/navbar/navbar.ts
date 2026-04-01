@@ -18,7 +18,7 @@ import { AuthService } from '../../../core/services/auth';
     MatButtonModule
   ],
   templateUrl: './navbar.html',
-  styleUrl: './navbar.scss'
+  styleUrls: ['./navbar.scss']
 })
 export class Navbar {
   private authService = inject(AuthService);
