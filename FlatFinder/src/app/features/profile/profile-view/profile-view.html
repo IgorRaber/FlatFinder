@@ -1,1 +1,87 @@
-<p>profile-view works!</p>
+<div class="page">
+  <div class="content-header">
+    <div>
+      <h1>Profile</h1>
+      <p>Review user details and account information.</p>
+    </div>
+
+    <div class="header-actions" *ngIf="!isLoading">
+      <button mat-stroked-button routerLink="/home">
+        Back to Home
+      </button>
+
+      <button
+        *ngIf="canEdit"
+        mat-raised-button
+        color="primary"
+        [routerLink]="getEditLink()"
+      >
+        <mat-icon>edit</mat-icon>
+        Edit Profile
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="empty-state">
+    <mat-icon>hourglass_empty</mat-icon>
+    <h3>Loading profile</h3>
+    <p>Please wait while the profile data is being loaded.</p>
+  </div>
+
+  <div *ngIf="!isLoading && profile" class="profile-card">
+    <div class="panel-header">
+      <div>
+        <h2>{{ profile.firstName }} {{ profile.lastName }}</h2>
+        <p>{{ profile.email }}</p>
+      </div>
+
+      <mat-chip-set>
+        <mat-chip>{{ profile.isAdmin ? 'Admin' : 'Regular user' }}</mat-chip>
+        <mat-chip>{{ (profile.favourites?.length ?? 0) }} favourites</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-item">
+        <label>User ID</label>
+        <p>{{ profile.id }}</p>
+      </div>
+
+      <div class="detail-item">
+        <label>First name</label>
+        <p>{{ profile.firstName }}</p>
+      </div>
+
+      <div class="detail-item">
+        <label>Last name</label>
+        <p>{{ profile.lastName }}</p>
+      </div>
+
+      <div class="detail-item">
+        <label>Email</label>
+        <p>{{ profile.email }}</p>
+      </div>
+
+      <div class="detail-item">
+        <label>Birth date</label>
+        <p>{{ profile.birthDate || 'Not provided' }}</p>
+      </div>
+
+      <div class="detail-item">
+        <label>Role</label>
+        <p>{{ profile.isAdmin ? 'Administrator' : 'Regular user' }}</p>
+      </div>
+
+      <div class="detail-item full-width">
+        <label>Favourite flat IDs</label>
+        <p *ngIf="profile.favourites?.length; else noFavourites">
+          {{ profile.favourites?.join(', ') }}
+        </p>
+
+        <ng-template #noFavourites>
+          <p>No favourites saved yet.</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</div>

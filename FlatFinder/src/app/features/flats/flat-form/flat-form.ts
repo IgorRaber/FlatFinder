@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -12,7 +12,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 
 import { auth } from '../../../core/firebase/firebase';
-import { Flat } from '../../../shared/models/flat';
 import { FlatsService } from '../../../core/services/flats';
 
 @Component({
@@ -29,6 +28,7 @@ import { FlatsService } from '../../../core/services/flats';
     MatDatepickerModule,
     MatNativeDateModule
   ],
+  providers: [FlatsService],
   templateUrl: './flat-form.html',
   styleUrls: ['./flat-form.scss']
 })
@@ -54,7 +54,7 @@ export class FlatForm {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private flatsService: FlatsService
+    @Inject(FlatsService) private flatsService: FlatsService
   ) {
     onAuthStateChanged(auth, async (user) => {
       if (!user) {

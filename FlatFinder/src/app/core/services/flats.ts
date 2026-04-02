@@ -40,7 +40,7 @@ export class FlatsService {
     const q = query(this.flatsCollection, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map(docItem => ({
+    return snapshot.docs.map((docItem) => ({
       id: docItem.id,
       ...docItem.data()
     })) as Flat[];
@@ -50,7 +50,7 @@ export class FlatsService {
     const q = query(this.flatsCollection, orderBy('createdAt', 'desc'));
 
     return onSnapshot(q, (snapshot) => {
-      const flats = snapshot.docs.map(docItem => ({
+      const flats = snapshot.docs.map((docItem) => ({
         id: docItem.id,
         ...docItem.data()
       })) as Flat[];
@@ -73,25 +73,40 @@ export class FlatsService {
     } as Flat;
   }
 
-  async getMyFlats(): Promise<Flat[]> {
-    const user = auth.currentUser;
-
-    if (!user) {
-      throw new Error('User not authenticated');
-    }
-
+  async getMyFlats(userId: string): Promise<Flat[]> {
     const q = query(
       this.flatsCollection,
-      where('ownerId', '==', user.uid),
-      orderBy('createdAt', 'desc')
+      where('ownerId', '==', userId)
     );
 
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map(docItem => ({
+    const flats = snapshot.docs.map((docItem) => ({
       id: docItem.id,
       ...docItem.data()
     })) as Flat[];
+
+    return flats.sort(
+      (a, b) => this.getCreatedAtTime(b.createdAt) - this.getCreatedAtTime(a.createdAt)
+    );
+  }
+
+  private getCreatedAtTime(value: any): number {
+    if (!value) return 0;
+
+    if (typeof value?.toDate === 'function') {
+      return value.toDate().getTime();
+    }
+
+    if (typeof value?.seconds === 'number') {
+      return value.seconds * 1000;
+    }
+
+    if (typeof value === 'string') {
+      return new Date(value).getTime();
+    }
+
+    return 0;
   }
 
   async updateFlat(id: string, data: Partial<Flat>) {

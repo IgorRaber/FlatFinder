@@ -1,1 +1,74 @@
-<p>favourites works!</p>
+<div class="page">
+  <div class="content-header">
+    <div>
+      <h1>Favourites</h1>
+      <p>Review the flats you saved for later.</p>
+    </div>
+
+    <button mat-raised-button color="primary" routerLink="/home">
+      <mat-icon>search</mat-icon>
+      Browse flats
+    </button>
+  </div>
+
+  <div class="flats-panel">
+    <div class="panel-header">
+      <h2>Saved flats</h2>
+      <mat-chip-set>
+        <mat-chip>{{ favouriteFlats.length }} results</mat-chip>
+      </mat-chip-set>
+    </div>
+
+    <div *ngIf="!favouriteFlats.length" class="empty-state">
+      <mat-icon>favorite_border</mat-icon>
+      <h3>No favourites yet</h3>
+      <p>Click the heart icon on a flat to save it here.</p>
+    </div>
+
+    <div *ngIf="favouriteFlats.length" class="flats-list">
+      <mat-card class="flat-card" *ngFor="let flat of favouriteFlats">
+        <div class="flat-card-image">
+          <mat-icon>home_work</mat-icon>
+        </div>
+
+        <div class="flat-card-content">
+          <div class="flat-card-top">
+            <div>
+              <h3>${{ flat.rentPrice }}</h3>
+              <p>{{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}</p>
+            </div>
+
+            <button
+              mat-icon-button
+              type="button"
+              class="favourite-btn is-favourite"
+              (click)="removeFromFavourites(flat.id)"
+            >
+              <mat-icon>favorite</mat-icon>
+            </button>
+          </div>
+
+          <div class="flat-meta">
+            <span>{{ flat.areaSize }} m²</span>
+            <span>Built in {{ flat.yearBuilt }}</span>
+            <span>{{ flat.hasAC ? 'AC included' : 'No AC' }}</span>
+          </div>
+
+          <div class="flat-footer">
+            <span>Available: {{ flat.dateAvailable | date:'mediumDate' }}</span>
+
+            <div class="flat-actions">
+              <button mat-stroked-button [routerLink]="['/flats', flat.id]">
+                View Details
+              </button>
+
+              <button mat-stroked-button color="warn" (click)="removeFromFavourites(flat.id)">
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</div>

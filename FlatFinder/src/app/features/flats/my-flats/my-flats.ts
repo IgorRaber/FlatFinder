@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -10,6 +10,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 import { auth } from '../../../core/firebase/firebase';
 import { Flat } from '../../../shared/models/flat';
+import { FlatsService } from '../../../core/services/flats';
 
 @Component({
   selector: 'app-my-flats',
@@ -29,35 +30,44 @@ export class MyFlats {
   currentUser: User | null = null;
   myFlats: Flat[] = [];
 
-  constructor(private router: Router) {
-    onAuthStateChanged(auth, (user) => {
+  constructor(
+    private router: Router,
+    private flatsService: FlatsService,
+    private cdr: ChangeDetectorRef
+  ) {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        this.router.navigate(['/login']);
+        await this.router.navigate(['/login']);
         return;
       }
 
       this.currentUser = user;
-      this.loadMyFlats();
+      await this.loadMyFlats(user.uid);
     });
   }
 
-  loadMyFlats(): void {
-    if (!this.currentUser) return;
+  async loadMyFlats(userId?: string): Promise<void> {
+    const uid = userId ?? this.currentUser?.uid;
 
-    const flats: Flat[] = JSON.parse(localStorage.getItem('flats') || '[]');
+    if (!uid) return;
 
-    this.myFlats = flats
-      .filter(flat => flat.ownerId === this.currentUser!.uid)
-      .sort((a, b) => {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
+    try {
+      this.myFlats = await this.flatsService.getMyFlats(uid);
+      console.log('My flats:', this.myFlats);
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Error loading flats:', error);
+      this.myFlats = [];
+      this.cdr.detectChanges();
+    }
   }
 
-  deleteFlat(id: string): void {
-    const flats: Flat[] = JSON.parse(localStorage.getItem('flats') || '[]');
-    const updated = flats.filter(flat => flat.id !== id);
-
-    localStorage.setItem('flats', JSON.stringify(updated));
-    this.loadMyFlats();
+  async deleteFlat(id: string): Promise<void> {
+    try {
+      await this.flatsService.deleteFlat(id);
+      await this.loadMyFlats();
+    } catch (error) {
+      console.error('Error deleting flat:', error);
+    }
   }
 }

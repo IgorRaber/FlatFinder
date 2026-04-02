@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export interface Flat {
   id: string;
   city: string;
@@ -9,5 +11,5 @@ export interface Flat {
   rentPrice: number;
   dateAvailable: string;
   ownerId: string;
-  createdAt: string;
+  createdAt: Timestamp | null;
 }

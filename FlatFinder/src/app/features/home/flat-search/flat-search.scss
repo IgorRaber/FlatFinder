@@ -3,12 +3,17 @@
   min-height: 100%;
 }
 
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
 .content-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.5rem;
 
   h1 {
     margin: 0;
@@ -29,7 +34,6 @@
   background: #ffffff;
   border-radius: 24px;
   padding: 1.25rem;
-  margin-bottom: 1.5rem;
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
   border: 1px solid rgba(15, 23, 42, 0.05);
 }
@@ -206,6 +210,24 @@
   p {
     margin: 0;
     color: #6b7280;
+  }
+}
+
+.favourite-btn {
+  color: #6b7280;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #ffffff;
+  transition: 0.2s ease;
+
+  &:hover {
+    color: #db2777;
+    transform: translateY(-1px);
+  }
+
+  &.is-favourite {
+    color: #db2777;
+    background: rgba(236, 72, 153, 0.08);
+    border-color: rgba(236, 72, 153, 0.2);
   }
 }
 

@@ -1,1 +1,110 @@
-<p>profile-edit works!</p>
+<div class="page">
+  <div class="content-header">
+    <div>
+      <h1>Edit Profile</h1>
+      <p>Update the selected user information.</p>
+    </div>
+
+    <button mat-stroked-button [routerLink]="getCancelLink()">
+      Cancel
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="empty-state">
+    <mat-icon>hourglass_empty</mat-icon>
+    <h3>Loading profile</h3>
+    <p>Please wait while the form is being prepared.</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="form-card">
+    <div *ngIf="message" class="form-message" [ngClass]="messageType">
+      {{ message }}
+    </div>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>User ID</mat-label>
+          <input matInput [value]="targetUserId" disabled />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            [disabled]="isCurrentUserAdmin && !isOwnProfile"
+            required
+          />
+          <mat-hint *ngIf="isCurrentUserAdmin && !isOwnProfile">
+            Changing another user's login email would require Admin SDK.
+          </mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>First name</mat-label>
+          <input matInput [(ngModel)]="firstName" name="firstName" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Last name</mat-label>
+          <input matInput [(ngModel)]="lastName" name="lastName" required />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Birth date</mat-label>
+          <input matInput type="date" [(ngModel)]="birthDate" name="birthDate" required />
+        </mat-form-field>
+
+        <div class="checkbox-card">
+          <mat-checkbox
+            [(ngModel)]="isAdmin"
+            name="isAdmin"
+            [disabled]="!isCurrentUserAdmin"
+          >
+            Administrator
+          </mat-checkbox>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Favourite flat IDs</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            [(ngModel)]="favouritesText"
+            name="favouritesText"
+          ></textarea>
+          <mat-hint>Separate each id with a comma.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password confirmation</mat-label>
+          <input
+            matInput
+            type="password"
+            [(ngModel)]="passwordConfirmation"
+            name="passwordConfirmation"
+          />
+          <mat-hint *ngIf="isOwnProfile && isPasswordProvider">
+            Enter your current password to confirm the update.
+          </mat-hint>
+          <mat-hint *ngIf="!isOwnProfile || !isPasswordProvider">
+            Not required for this update.
+          </mat-hint>
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <button mat-stroked-button type="button" [routerLink]="getCancelLink()">
+          Cancel
+        </button>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="isSaving">
+          {{ isSaving ? 'Saving...' : 'Update Profile' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

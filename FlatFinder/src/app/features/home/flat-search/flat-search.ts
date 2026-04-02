@@ -1,7 +1,14 @@
-import { Component, OnInit, OnDestroy, inject, NgZone } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  NgZone
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +20,7 @@ import { MatCardModule } from '@angular/material/card';
 
 import { Flat } from '../../../shared/models/flat';
 import { FlatsService } from '../../../core/services/flats';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-flat-search',
@@ -34,11 +42,19 @@ import { FlatsService } from '../../../core/services/flats';
 })
 export class FlatSearch implements OnInit, OnDestroy {
   private flatsService = inject(FlatsService);
+  private authService = inject(AuthService);
   private ngZone = inject(NgZone);
+  private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
+
   private unsubscribeFlats: (() => void) | null = null;
+  private unsubscribeAuth: (() => void) | null = null;
+  private unsubscribeFavourites: (() => void) | null = null;
 
   allFlats: Flat[] = [];
   flats: Flat[] = [];
+  favouriteIds: string[] = [];
+  currentUserId: string | null = null;
 
   searchTerm = '';
   city = '';
@@ -48,11 +64,45 @@ export class FlatSearch implements OnInit, OnDestroy {
   sortBy = '';
 
   ngOnInit(): void {
+    this.listenToAuth();
     this.listenToFlats();
   }
 
   ngOnDestroy(): void {
     this.unsubscribeFlats?.();
+    this.unsubscribeAuth?.();
+    this.unsubscribeFavourites?.();
+  }
+
+  listenToAuth(): void {
+    this.unsubscribeAuth = this.authService.onAuthStateChanged((user) => {
+      this.ngZone.run(() => {
+        this.currentUserId = user?.uid ?? null;
+
+        this.unsubscribeFavourites?.();
+        this.unsubscribeFavourites = null;
+
+        if (!user) {
+          this.favouriteIds = [];
+          this.applyFilters();
+          this.cdr.detectChanges();
+          return;
+        }
+
+        this.listenToFavouriteIds();
+        this.applyFilters();
+        this.cdr.detectChanges();
+      });
+    });
+  }
+
+  listenToFavouriteIds(): void {
+    this.unsubscribeFavourites = this.authService.listenToFavouriteIds((ids) => {
+      this.ngZone.run(() => {
+        this.favouriteIds = ids;
+        this.cdr.detectChanges();
+      });
+    });
   }
 
   listenToFlats(): void {
@@ -60,12 +110,17 @@ export class FlatSearch implements OnInit, OnDestroy {
       this.ngZone.run(() => {
         this.allFlats = flats;
         this.applyFilters();
+        this.cdr.detectChanges();
       });
     });
   }
 
   applyFilters(): void {
     let filtered = [...this.allFlats];
+
+    if (this.currentUserId) {
+      filtered = filtered.filter((flat) => flat.ownerId !== this.currentUserId);
+    }
 
     const normalizedSearch = this.searchTerm.trim().toLowerCase();
     const normalizedCity = this.city.trim().toLowerCase();
@@ -91,20 +146,23 @@ export class FlatSearch implements OnInit, OnDestroy {
     }
 
     if (this.minPrice !== null) {
+      const minPrice = this.minPrice;
       filtered = filtered.filter(
-        (flat) => Number(flat.rentPrice) >= this.minPrice!
+        (flat) => Number(flat.rentPrice) >= minPrice
       );
     }
 
     if (this.maxPrice !== null) {
+      const maxPrice = this.maxPrice;
       filtered = filtered.filter(
-        (flat) => Number(flat.rentPrice) <= this.maxPrice!
+        (flat) => Number(flat.rentPrice) <= maxPrice
       );
     }
 
     if (this.minArea !== null) {
+      const minArea = this.minArea;
       filtered = filtered.filter(
-        (flat) => Number(flat.areaSize) >= this.minArea!
+        (flat) => Number(flat.areaSize) >= minArea
       );
     }
 
@@ -143,11 +201,56 @@ export class FlatSearch implements OnInit, OnDestroy {
     this.applyFilters();
   }
 
+  isFavourite(flatId: string): boolean {
+    return this.favouriteIds.includes(flatId);
+  }
+
+  async toggleFavourite(flatId: string): Promise<void> {
+    const user = this.authService.getCurrentUser();
+
+    if (!user) {
+      await this.router.navigate(['/login']);
+      return;
+    }
+
+    const wasFavourite = this.isFavourite(flatId);
+
+    if (wasFavourite) {
+      this.favouriteIds = this.favouriteIds.filter((id) => id !== flatId);
+    } else {
+      this.favouriteIds = [...this.favouriteIds, flatId];
+    }
+
+    this.cdr.detectChanges();
+
+    try {
+      if (wasFavourite) {
+        await this.authService.removeFavourite(flatId);
+      } else {
+        await this.authService.addFavourite(flatId);
+      }
+    } catch (error) {
+      console.error('Error updating favourite:', error);
+
+      if (wasFavourite) {
+        this.favouriteIds = [...this.favouriteIds, flatId];
+      } else {
+        this.favouriteIds = this.favouriteIds.filter((id) => id !== flatId);
+      }
+
+      this.cdr.detectChanges();
+    }
+  }
+
   private getCreatedAtTime(value: any): number {
     if (!value) return 0;
 
     if (typeof value?.toDate === 'function') {
       return value.toDate().getTime();
+    }
+
+    if (typeof value?.seconds === 'number') {
+      return value.seconds * 1000;
     }
 
     return new Date(value).getTime();
