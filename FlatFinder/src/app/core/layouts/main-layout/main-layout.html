@@ -1,9 +1,17 @@
-<div class="home-layout">
-  <aside class="sidebar">
-    <app-navbar></app-navbar>
-  </aside>
+<div class="main-layout">
 
-  <section class="content">
-    <router-outlet></router-outlet>
-  </section>
+  <!-- Top area -->
+  <div class="layout-body">
+    <aside class="sidebar">
+      <app-navbar></app-navbar>
+    </aside>
+
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </div>
+
+  <!-- Footer (full width) -->
+  <app-footer></app-footer>
+
 </div>

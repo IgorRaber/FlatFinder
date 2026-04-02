@@ -14,18 +14,14 @@
   <div class="filters-grid">
     <mat-form-field appearance="outline">
       <mat-label>Search by city or address</mat-label>
-      <input
-        matInput
-        placeholder="e.g. Vancouver, Main Street"
-        [(ngModel)]="searchTerm"
-        name="searchTerm"
-      />
+      <input matInput placeholder="e.g. Vancouver, Main Street" [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()" name="searchTerm" />
       <mat-icon matSuffix>search</mat-icon>
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>City</mat-label>
-      <mat-select [(ngModel)]="city" name="city">
+      <mat-select [(ngModel)]="city" (ngModelChange)="applyFilters()" name="city">
         <mat-option value="">All cities</mat-option>
         <mat-option value="vancouver">Vancouver</mat-option>
         <mat-option value="burnaby">Burnaby</mat-option>
@@ -35,40 +31,25 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Min price</mat-label>
-      <input
-        matInput
-        type="number"
-        placeholder="1500"
-        [(ngModel)]="minPrice"
-        name="minPrice"
-      />
+      <input matInput type="number" placeholder="1500" [(ngModel)]="minPrice" (ngModelChange)="applyFilters()"
+        name="minPrice" />
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Max price</mat-label>
-      <input
-        matInput
-        type="number"
-        placeholder="3000"
-        [(ngModel)]="maxPrice"
-        name="maxPrice"
-      />
+      <input matInput type="number" placeholder="3000" [(ngModel)]="maxPrice" (ngModelChange)="applyFilters()"
+        name="maxPrice" />
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Min area</mat-label>
-      <input
-        matInput
-        type="number"
-        placeholder="50"
-        [(ngModel)]="minArea"
-        name="minArea"
-      />
+      <input matInput type="number" placeholder="50" [(ngModel)]="minArea" (ngModelChange)="applyFilters()"
+        name="minArea" />
     </mat-form-field>
 
     <mat-form-field appearance="outline">
       <mat-label>Sort by</mat-label>
-      <mat-select [(ngModel)]="sortBy" name="sortBy">
+      <mat-select [(ngModel)]="sortBy" (ngModelChange)="applyFilters()" name="sortBy">
         <mat-option value="">Newest</mat-option>
         <mat-option value="price">Price</mat-option>
         <mat-option value="city">City</mat-option>
@@ -80,10 +61,6 @@
   <div class="filters-actions">
     <button mat-stroked-button type="button" (click)="resetFilters()">
       Reset filters
-    </button>
-
-    <button mat-raised-button color="primary" type="button" (click)="applyFilters()">
-      Apply filters
     </button>
   </div>
 </div>
@@ -97,8 +74,16 @@
       </mat-chip-set>
     </div>
 
-    <div class="flats-list">
-      @for (flat of flats; track flat.id) {
+    <div class="panel-inner" [class.panel-empty]="flats.length === 0">
+      @if (flats.length === 0) {
+      <div class="empty-state">
+        <mat-icon>home_work</mat-icon>
+        <h3>No flats yet</h3>
+        <p>This area will display the available flats.</p>
+      </div>
+      } @else {
+      <div class="flats-list">
+        @for (flat of flats; track flat.id) {
         <mat-card class="flat-card">
           <div class="flat-card-image">
             <mat-icon>home_work</mat-icon>
@@ -130,17 +115,22 @@
             </div>
           </div>
         </mat-card>
+        }
+      </div>
       }
     </div>
   </div>
 
   <div class="map-panel">
-    <div class="map-placeholder">
-      <mat-icon>map</mat-icon>
-      <h3>Map integration coming next</h3>
-      <p>
-        This area will show Google Maps with markers for the visible flats.
-      </p>
+    <h2>Location</h2>
+    <div class="panel-inner panel-empty">
+      <div class="empty-state">
+        <mat-icon>map</mat-icon>
+        <h3>Map integration coming next</h3>
+        <p>
+          This area will show Google Maps with markers for the visible flats.
+        </p>
+      </div>
     </div>
   </div>
 </div>

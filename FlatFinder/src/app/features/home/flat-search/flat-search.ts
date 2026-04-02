@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 
 import { Flat } from '../../../shared/models/flat';
+import { FlatsService } from '../../../core/services/flats';
 
 @Component({
   selector: 'app-flat-search',
@@ -31,7 +32,11 @@ import { Flat } from '../../../shared/models/flat';
   templateUrl: './flat-search.html',
   styleUrls: ['./flat-search.scss']
 })
-export class FlatSearch implements OnInit {
+export class FlatSearch implements OnInit, OnDestroy {
+  private flatsService = inject(FlatsService);
+  private ngZone = inject(NgZone);
+  private unsubscribeFlats: (() => void) | null = null;
+
   allFlats: Flat[] = [];
   flats: Flat[] = [];
 
@@ -43,13 +48,20 @@ export class FlatSearch implements OnInit {
   sortBy = '';
 
   ngOnInit(): void {
-    this.loadFlats();
+    this.listenToFlats();
   }
 
-  loadFlats(): void {
-    this.allFlats = JSON.parse(localStorage.getItem('flats') || '[]');
-    this.flats = [...this.allFlats];
-    this.applyFilters();
+  ngOnDestroy(): void {
+    this.unsubscribeFlats?.();
+  }
+
+  listenToFlats(): void {
+    this.unsubscribeFlats = this.flatsService.listenToAllFlats((flats) => {
+      this.ngZone.run(() => {
+        this.allFlats = flats;
+        this.applyFilters();
+      });
+    });
   }
 
   applyFilters(): void {
@@ -78,21 +90,21 @@ export class FlatSearch implements OnInit {
       );
     }
 
-    if (this.minPrice !== null && this.minPrice !== undefined) {
+    if (this.minPrice !== null) {
       filtered = filtered.filter(
-        (flat) => Number(flat.rentPrice) >= Number(this.minPrice)
+        (flat) => Number(flat.rentPrice) >= this.minPrice!
       );
     }
 
-    if (this.maxPrice !== null && this.maxPrice !== undefined) {
+    if (this.maxPrice !== null) {
       filtered = filtered.filter(
-        (flat) => Number(flat.rentPrice) <= Number(this.maxPrice)
+        (flat) => Number(flat.rentPrice) <= this.maxPrice!
       );
     }
 
-    if (this.minArea !== null && this.minArea !== undefined) {
+    if (this.minArea !== null) {
       filtered = filtered.filter(
-        (flat) => Number(flat.areaSize) >= Number(this.minArea)
+        (flat) => Number(flat.areaSize) >= this.minArea!
       );
     }
 
@@ -111,8 +123,8 @@ export class FlatSearch implements OnInit {
 
       default:
         filtered.sort((a, b) => {
-          const dateA = new Date(a.createdAt || 0).getTime();
-          const dateB = new Date(b.createdAt || 0).getTime();
+          const dateA = this.getCreatedAtTime(a.createdAt);
+          const dateB = this.getCreatedAtTime(b.createdAt);
           return dateB - dateA;
         });
         break;
@@ -128,11 +140,16 @@ export class FlatSearch implements OnInit {
     this.maxPrice = null;
     this.minArea = null;
     this.sortBy = '';
+    this.applyFilters();
+  }
 
-    this.flats = [...this.allFlats].sort((a, b) => {
-      const dateA = new Date(a.createdAt || 0).getTime();
-      const dateB = new Date(b.createdAt || 0).getTime();
-      return dateB - dateA;
-    });
+  private getCreatedAtTime(value: any): number {
+    if (!value) return 0;
+
+    if (typeof value?.toDate === 'function') {
+      return value.toDate().getTime();
+    }
+
+    return new Date(value).getTime();
   }
 }

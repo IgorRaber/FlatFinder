@@ -8,9 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
 
 import { auth } from '../../../core/firebase/firebase';
 import { Flat } from '../../../shared/models/flat';
+import { FlatsService } from '../../../core/services/flats';
 
 @Component({
   selector: 'app-flat-form',
@@ -22,7 +25,9 @@ import { Flat } from '../../../shared/models/flat';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatDatepickerModule,
+    MatNativeDateModule
   ],
   templateUrl: './flat-form.html',
   styleUrls: ['./flat-form.scss']
@@ -30,12 +35,12 @@ import { Flat } from '../../../shared/models/flat';
 export class FlatForm {
   city = '';
   streetName = '';
-  streetNumber = '';
+  streetNumber: number | null = null;
   areaSize: number | null = null;
   hasAC = false;
   yearBuilt: number | null = null;
   rentPrice: number | null = null;
-  dateAvailable = '';
+  dateAvailable: Date | null = null;
 
   message = '';
   messageType: 'error' | 'success' = 'success';
@@ -43,12 +48,15 @@ export class FlatForm {
   currentUser: User | null = null;
   isEditMode = false;
   flatId: string | null = null;
+  isLoading = false;
+  minAvailableDate = new Date();
 
   constructor(
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private flatsService: FlatsService
   ) {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
         this.router.navigate(['/login']);
         return;
@@ -59,97 +67,102 @@ export class FlatForm {
       this.isEditMode = !!this.flatId;
 
       if (this.isEditMode) {
-        this.loadFlat();
+        await this.loadFlat();
       }
     });
   }
 
-  loadFlat(): void {
-    const flats: Flat[] = JSON.parse(localStorage.getItem('flats') || '[]');
-    const flat = flats.find(f => f.id === this.flatId);
+  async loadFlat(): Promise<void> {
+    if (!this.flatId || !this.currentUser) return;
 
-    if (!flat || !this.currentUser || flat.ownerId !== this.currentUser.uid) {
+    const flat = await this.flatsService.getFlatById(this.flatId);
+
+    if (!flat || flat.ownerId !== this.currentUser.uid) {
       this.router.navigate(['/my-flats']);
       return;
     }
 
     this.city = flat.city;
     this.streetName = flat.streetName;
-    this.streetNumber = flat.streetNumber;
-    this.areaSize = flat.areaSize;
-    this.hasAC = flat.hasAC;
-    this.yearBuilt = flat.yearBuilt;
-    this.rentPrice = flat.rentPrice;
-    this.dateAvailable = flat.dateAvailable;
+    this.streetNumber = Number(flat.streetNumber);
+    this.areaSize = Number(flat.areaSize);
+    this.hasAC = !!flat.hasAC;
+    this.yearBuilt = Number(flat.yearBuilt);
+    this.rentPrice = Number(flat.rentPrice);
+    this.dateAvailable = flat.dateAvailable ? new Date(flat.dateAvailable) : null;
   }
 
-  onSubmit(): void {
-    if (
+  private isFormInvalid(): boolean {
+    return (
       !this.currentUser ||
-      !this.city ||
-      !this.streetName ||
-      !this.streetNumber ||
+      !this.city.trim() ||
+      !this.streetName.trim() ||
+      this.streetNumber === null ||
+      this.streetNumber <= 0 ||
       this.areaSize === null ||
+      this.areaSize <= 0 ||
       this.yearBuilt === null ||
+      this.yearBuilt < 1800 ||
       this.rentPrice === null ||
+      this.rentPrice <= 0 ||
       !this.dateAvailable
-    ) {
+    );
+  }
+
+  async onSubmit(): Promise<void> {
+    if (this.isFormInvalid()) {
       this.messageType = 'error';
-      this.message = 'Please fill in all required fields.';
+      this.message = 'Please fill in all required fields with valid values.';
       return;
     }
 
-    const flats: Flat[] = JSON.parse(localStorage.getItem('flats') || '[]');
+    this.isLoading = true;
+    this.message = '';
 
-    if (this.isEditMode && this.flatId) {
-      const index = flats.findIndex(f => f.id === this.flatId);
+    try {
+      const payload = {
+        city: this.city.trim(),
+        streetName: this.streetName.trim(),
+        streetNumber: String(this.streetNumber),
+        areaSize: Number(this.areaSize),
+        hasAC: this.hasAC,
+        yearBuilt: Number(this.yearBuilt),
+        rentPrice: Number(this.rentPrice),
+        dateAvailable: this.dateAvailable instanceof Date
+          ? this.dateAvailable.toISOString()
+          : String(this.dateAvailable)
+      };
 
-      if (index === -1) {
-        this.messageType = 'error';
-        this.message = 'Flat not found.';
-        return;
+      if (this.isEditMode && this.flatId) {
+        await this.flatsService.updateFlat(this.flatId, payload);
+        this.messageType = 'success';
+        this.message = 'Flat updated successfully.';
+      } else {
+        await this.flatsService.createFlat(payload);
+        this.messageType = 'success';
+        this.message = 'Flat created successfully.';
       }
 
-      flats[index] = {
-        ...flats[index],
-        city: this.city,
-        streetName: this.streetName,
-        streetNumber: this.streetNumber,
-        areaSize: this.areaSize,
-        hasAC: this.hasAC,
-        yearBuilt: this.yearBuilt,
-        rentPrice: this.rentPrice,
-        dateAvailable: this.dateAvailable
-      };
-    } else {
-      const newFlat: Flat = {
-        id: crypto.randomUUID(),
-        city: this.city,
-        streetName: this.streetName,
-        streetNumber: this.streetNumber,
-        areaSize: this.areaSize,
-        hasAC: this.hasAC,
-        yearBuilt: this.yearBuilt,
-        rentPrice: this.rentPrice,
-        dateAvailable: this.dateAvailable,
-        ownerId: this.currentUser.uid,
-        createdAt: new Date().toISOString()
-      };
-
-      flats.push(newFlat);
+      await this.router.navigate(['/my-flats']);
+    } catch (error) {
+      console.error(error);
+      this.messageType = 'error';
+      this.message = 'Something went wrong while saving the flat.';
+    } finally {
+      this.isLoading = false;
     }
-
-    localStorage.setItem('flats', JSON.stringify(flats));
-    this.router.navigate(['/my-flats']);
   }
 
-  deleteFlat(): void {
+  async deleteFlat(): Promise<void> {
     if (!this.flatId) return;
 
-    const flats: Flat[] = JSON.parse(localStorage.getItem('flats') || '[]');
-    const updated = flats.filter(f => f.id !== this.flatId);
-
-    localStorage.setItem('flats', JSON.stringify(updated));
-    this.router.navigate(['/my-flats']);
+    try {
+      await this.flatsService.deleteFlat(this.flatId);
+      await this.router.navigate(['/my-flats']);
+    } catch (error) {
+      console.error(error);
+      this.messageType = 'error';
+      this.message = 'Could not delete this flat.';
+    }
   }
 }

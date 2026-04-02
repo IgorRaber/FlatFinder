@@ -36,7 +36,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Street number</mat-label>
-        <input matInput [(ngModel)]="streetNumber" name="streetNumber" required />
+        <input matInput type="number" [(ngModel)]="streetNumber" name="streetNumber" required />
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -56,7 +56,16 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Available date</mat-label>
-        <input matInput type="date" [(ngModel)]="dateAvailable" name="dateAvailable" required />
+        <input
+          matInput
+          [matDatepicker]="picker"
+          [min]="minAvailableDate"
+          [(ngModel)]="dateAvailable"
+          name="dateAvailable"
+          required
+        />
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>
 
       <div class="checkbox-card">
@@ -84,8 +93,8 @@
           Cancel
         </button>
 
-        <button mat-raised-button color="primary" type="submit">
-          {{ isEditMode ? 'Save changes' : 'Create flat' }}
+        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+          {{ isLoading ? 'Saving...' : (isEditMode ? 'Save changes' : 'Create flat') }}
         </button>
       </div>
     </div>
