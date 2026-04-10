@@ -57,15 +57,15 @@
           <div class="flat-footer">
             <span>Available: {{ flat.dateAvailable | date:'mediumDate' }}</span>
 
-            <div class="flat-actions">
-              <button mat-stroked-button [routerLink]="['/flats', flat.id]">
-                View Details
-              </button>
+<div class="flat-actions">
+  <button mat-stroked-button type="button" (click)="openFlat(flat.id)">
+    View Details
+  </button>
 
-              <button mat-stroked-button color="warn" (click)="removeFromFavourites(flat.id)">
-                Remove
-              </button>
-            </div>
+  <button mat-stroked-button color="warn" type="button" (click)="removeFromFavourites(flat.id)">
+    Remove
+  </button>
+</div>
           </div>
         </div>
       </mat-card>

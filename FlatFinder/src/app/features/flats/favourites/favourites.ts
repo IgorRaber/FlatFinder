@@ -13,10 +13,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 
 import { Flat } from '../../../shared/models/flat';
 import { FlatsService } from '../../../core/services/flats';
 import { AuthService } from '../../../core/services/auth';
+import { FlatDetail } from '../flat-detail/flat-detail';
 
 @Component({
   selector: 'app-favourites',
@@ -38,6 +40,7 @@ export class Favourites implements OnInit, OnDestroy {
   private router = inject(Router);
   private ngZone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   private unsubscribeFlats: (() => void) | null = null;
   private unsubscribeFavourites: (() => void) | null = null;
@@ -63,8 +66,19 @@ export class Favourites implements OnInit, OnDestroy {
     this.unsubscribeFavourites?.();
   }
 
+  openFlat(flatId: string): void {
+    this.dialog.open(FlatDetail, {
+      width: '1000px',
+      maxWidth: '92vw',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'flat-detail-dialog',
+      data: { flatId }
+    });
+  }
+
   listenToFavouriteIds(): void {
-    this.unsubscribeFavourites = this.authService.listenToFavouriteIds((ids) => {
+    this.unsubscribeFavourites = this.authService.listenToFavouriteIds((ids: string[]) => {
       this.ngZone.run(() => {
         this.favouriteIds = ids;
         this.applyFavouriteFilter();
@@ -74,7 +88,7 @@ export class Favourites implements OnInit, OnDestroy {
   }
 
   listenToFlats(): void {
-    this.unsubscribeFlats = this.flatsService.listenToAllFlats((flats) => {
+    this.unsubscribeFlats = this.flatsService.listenToAllFlats((flats: Flat[]) => {
       this.ngZone.run(() => {
         this.allFlats = flats;
         this.applyFavouriteFilter();
