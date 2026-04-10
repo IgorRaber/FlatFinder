@@ -46,7 +46,10 @@
           </div>
 
           <div class="flat-footer">
-            <span>Available: {{ flat.dateAvailable }}</span>
+              <div class="available_date">
+              <span class="label">Date Available</span>
+              <span class="value">{{ flat.dateAvailable | date:'yyyy-MM-dd' }}</span>
+              </div>
 
             <div class="flat-actions">
               @if (flat.id) {
