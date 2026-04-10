@@ -1,0 +1,73 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.messages-card {
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.messages-header,
+.message-top,
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.helper-text,
+.email,
+.message-date {
+  color: #666;
+}
+
+.message-form {
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.message-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.message-item {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.message-top {
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.message-content {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.center-state,
+.empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1rem;
+  text-align: center;
+}

@@ -17,10 +17,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
 
 import { Flat } from '../../../shared/models/flat';
 import { FlatsService } from '../../../core/services/flats';
 import { AuthService } from '../../../core/services/auth';
+import { FlatDetail } from '../../flats/flat-detail/flat-detail';
 
 @Component({
   selector: 'app-flat-search',
@@ -46,6 +48,7 @@ export class FlatSearch implements OnInit, OnDestroy {
   private ngZone = inject(NgZone);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private dialog = inject(MatDialog);
 
   private unsubscribeFlats: (() => void) | null = null;
   private unsubscribeAuth: (() => void) | null = null;
@@ -97,7 +100,7 @@ export class FlatSearch implements OnInit, OnDestroy {
   }
 
   listenToFavouriteIds(): void {
-    this.unsubscribeFavourites = this.authService.listenToFavouriteIds((ids) => {
+    this.unsubscribeFavourites = this.authService.listenToFavouriteIds((ids: string[]) => {
       this.ngZone.run(() => {
         this.favouriteIds = ids;
         this.cdr.detectChanges();
@@ -106,7 +109,7 @@ export class FlatSearch implements OnInit, OnDestroy {
   }
 
   listenToFlats(): void {
-    this.unsubscribeFlats = this.flatsService.listenToAllFlats((flats) => {
+    this.unsubscribeFlats = this.flatsService.listenToAllFlats((flats: Flat[]) => {
       this.ngZone.run(() => {
         this.allFlats = flats;
         this.applyFilters();
@@ -114,6 +117,17 @@ export class FlatSearch implements OnInit, OnDestroy {
       });
     });
   }
+
+  openFlat(flatId: string): void {
+  this.dialog.open(FlatDetail, {
+    width: '1000px',
+    maxWidth: '92vw',
+    maxHeight: '90vh',
+    autoFocus: false,
+    panelClass: 'flat-detail-dialog',
+    data: { flatId }
+  });
+}
 
   applyFilters(): void {
     let filtered = [...this.allFlats];
