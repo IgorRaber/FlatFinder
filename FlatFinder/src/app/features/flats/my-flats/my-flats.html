@@ -49,9 +49,11 @@
             <span>Available: {{ flat.dateAvailable }}</span>
 
             <div class="flat-actions">
-              <button mat-stroked-button [routerLink]="['/flats', flat.id]">
+              @if (flat.id) {
+              <button mat-stroked-button type="button" (click)="openFlat(flat.id)">
                 View Details
               </button>
+            }
 
               <button mat-raised-button color="primary" [routerLink]="['/flats', flat.id, 'edit']">
                 Edit
