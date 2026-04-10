@@ -143,9 +143,11 @@
                   <div class="flat-footer">
                     <span>Available: {{ flat.dateAvailable | date:'mediumDate' }}</span>
 
-                    <button mat-stroked-button [routerLink]="['/flats', flat.id]">
+                                      @if (flat.id) {
+                    <button mat-stroked-button type="button" (click)="openFlat(flat.id)">
                       View Details
                     </button>
+                  }
                   </div>
                 </div>
               </mat-card>

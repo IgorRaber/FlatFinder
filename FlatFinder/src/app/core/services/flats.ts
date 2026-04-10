@@ -11,10 +11,14 @@ import {
   query,
   serverTimestamp,
   updateDoc,
-  where
+  where,
+  QuerySnapshot,
+  DocumentData,
+  QueryDocumentSnapshot
 } from 'firebase/firestore';
 import { auth, db } from '../firebase/firebase';
 import { Flat } from '../../shared/models/flat';
+import { FlatMessage } from '../../shared/models/messages';
 
 @Injectable({
   providedIn: 'root'
@@ -40,17 +44,17 @@ export class FlatsService {
     const q = query(this.flatsCollection, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((docItem) => ({
+    return snapshot.docs.map((docItem: QueryDocumentSnapshot<DocumentData>) => ({
       id: docItem.id,
       ...docItem.data()
     })) as Flat[];
   }
 
-  listenToAllFlats(callback: (flats: Flat[]) => void) {
+  listenToAllFlats(callback: (flats: Flat[]) => void): () => void {
     const q = query(this.flatsCollection, orderBy('createdAt', 'desc'));
 
-    return onSnapshot(q, (snapshot) => {
-      const flats = snapshot.docs.map((docItem) => ({
+    return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
+      const flats = snapshot.docs.map((docItem: QueryDocumentSnapshot<DocumentData>) => ({
         id: docItem.id,
         ...docItem.data()
       })) as Flat[];
@@ -74,14 +78,10 @@ export class FlatsService {
   }
 
   async getMyFlats(userId: string): Promise<Flat[]> {
-    const q = query(
-      this.flatsCollection,
-      where('ownerId', '==', userId)
-    );
-
+    const q = query(this.flatsCollection, where('ownerId', '==', userId));
     const snapshot = await getDocs(q);
 
-    const flats = snapshot.docs.map((docItem) => ({
+    const flats = snapshot.docs.map((docItem: QueryDocumentSnapshot<DocumentData>) => ({
       id: docItem.id,
       ...docItem.data()
     })) as Flat[];
@@ -92,39 +92,62 @@ export class FlatsService {
   }
 
   async getFlatsByOwnerId(ownerId: string): Promise<Flat[]> {
-    const q = query(
-      this.flatsCollection,
-      where('ownerId', '==', ownerId)
-    );
-
+    const q = query(this.flatsCollection, where('ownerId', '==', ownerId));
     const snapshot = await getDocs(q);
 
-    const flats = snapshot.docs.map(docItem => ({
+    const flats = snapshot.docs.map((docItem: QueryDocumentSnapshot<DocumentData>) => ({
       id: docItem.id,
       ...docItem.data()
     })) as Flat[];
 
-    return flats.sort((a, b) => {
-      return this.getCreatedAtTime(b.createdAt) - this.getCreatedAtTime(a.createdAt);
+    return flats.sort(
+      (a, b) => this.getCreatedAtTime(b.createdAt) - this.getCreatedAtTime(a.createdAt)
+    );
+  }
+
+  listenToMessages(
+    flatId: string,
+    currentUserId: string,
+    isOwner: boolean,
+    callback: (messages: FlatMessage[]) => void
+  ): () => void {
+    const messagesCollection = collection(db, 'flats', flatId, 'messages');
+
+    const messagesQuery = isOwner
+      ? query(messagesCollection, orderBy('createdAt', 'desc'))
+      : query(
+          messagesCollection,
+          where('senderId', '==', currentUserId),
+          orderBy('createdAt', 'desc')
+        );
+
+    return onSnapshot(messagesQuery, (snapshot: QuerySnapshot<DocumentData>) => {
+      const messages = snapshot.docs.map((messageDoc: QueryDocumentSnapshot<DocumentData>) => ({
+        id: messageDoc.id,
+        ...messageDoc.data()
+      })) as FlatMessage[];
+
+      callback(messages);
     });
   }
 
-  private getCreatedAtTime(value: any): number {
-    if (!value) return 0;
+  async createMessage(flatId: string, content: string): Promise<void> {
+    const currentUser = auth.currentUser;
 
-    if (typeof value?.toDate === 'function') {
-      return value.toDate().getTime();
+    if (!currentUser) {
+      throw new Error('User not authenticated');
     }
 
-    if (typeof value?.seconds === 'number') {
-      return value.seconds * 1000;
-    }
+    const messagesCollection = collection(db, 'flats', flatId, 'messages');
 
-    if (typeof value === 'string') {
-      return new Date(value).getTime();
-    }
-
-    return 0;
+    await addDoc(messagesCollection, {
+      flatId,
+      senderId: currentUser.uid,
+      senderName: currentUser.displayName || 'User',
+      senderEmail: currentUser.email || '',
+      content: content.trim(),
+      createdAt: serverTimestamp()
+    });
   }
 
   async updateFlat(id: string, data: Partial<Flat>) {
@@ -133,5 +156,33 @@ export class FlatsService {
 
   async deleteFlat(id: string) {
     return deleteDoc(doc(db, 'flats', id));
+  }
+
+  private getCreatedAtTime(value: unknown): number {
+    if (!value) return 0;
+
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      'toDate' in value &&
+      typeof (value as { toDate: () => Date }).toDate === 'function'
+    ) {
+      return (value as { toDate: () => Date }).toDate().getTime();
+    }
+
+    if (
+      typeof value === 'object' &&
+      value !== null &&
+      'seconds' in value &&
+      typeof (value as { seconds: number }).seconds === 'number'
+    ) {
+      return (value as { seconds: number }).seconds * 1000;
+    }
+
+    if (typeof value === 'string') {
+      return new Date(value).getTime();
+    }
+
+    return 0;
   }
 }

@@ -309,3 +309,19 @@ mat-form-field {
     max-height: 420px;
   }
 }
+
+.cdk-overlay-pane.flat-detail-dialog .mat-mdc-dialog-container .mdc-dialog__surface {
+  border-radius: 24px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.cdk-overlay-pane.flat-detail-dialog .mat-mdc-dialog-content {
+  padding: 0 !important;
+  margin: 0;
+  max-height: 90vh;
+}
+
+.cdk-overlay-pane.flat-detail-dialog {
+  max-width: 92vw !important;
+}

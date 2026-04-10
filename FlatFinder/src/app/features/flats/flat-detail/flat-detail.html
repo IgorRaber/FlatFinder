@@ -1,80 +1,86 @@
-<div *ngIf="flat">
-  <div class="content-header">
-    <div>
-      <h1>Flat details</h1>
-      <p>See the full information about this property.</p>
-    </div>
-
-    <button mat-stroked-button routerLink="/home">
-      Back to Home
-    </button>
+@if (loading) {
+  <div class="center-state">
+    <mat-spinner diameter="40"></mat-spinner>
   </div>
+}
 
-  <div class="detail-card">
-    <div class="detail-layout">
-      <div class="detail-image">
-        <mat-icon>apartment</mat-icon>
+@if (!loading && errorMessage) {
+  <mat-card class="state-card">
+    <p>{{ errorMessage }}</p>
+  </mat-card>
+}
+
+@if (!loading && flat) {
+  <div class="flat-details-wrapper">
+    <mat-card class="flat-card">
+      <div class="flat-header">
+        <div>
+          <h2>Flat View</h2>
+          <p class="subtitle">{{ flat.city }} - {{ flat.streetName }}, {{ flat.streetNumber }}</p>
+        </div>
+
+        <div class="header-actions">
+          @if (isOwner) {
+            <button mat-raised-button color="primary" type="button" (click)="goToEdit()">
+              Edit
+            </button>
+          }
+
+          @if (dialogRef) {
+            <button mat-icon-button type="button" (click)="close()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
+        </div>
       </div>
 
-      <div class="detail-info">
-        <div class="detail-top">
-          <div>
-            <h2>{{ flat.city }}</h2>
-            <p>{{ flat.streetName }}, {{ flat.streetNumber }}</p>
-          </div>
+      <mat-divider></mat-divider>
 
-          <strong>${{ flat.rentPrice }}</strong>
+      <div class="details-grid">
+        <div class="detail-item">
+          <span class="label">City</span>
+          <span class="value">{{ flat.city }}</span>
         </div>
 
-        <div class="detail-meta">
-          <span>{{ flat.areaSize }} m²</span>
-          <span>{{ flat.hasAC ? 'AC included' : 'No AC' }}</span>
-          <span>Built in {{ flat.yearBuilt }}</span>
-          <span>Available: {{ flat.dateAvailable }}</span>
+        <div class="detail-item">
+          <span class="label">Street Name</span>
+          <span class="value">{{ flat.streetName }}</span>
         </div>
 
-        <div class="info-grid">
-          <div class="info-box">
-            <h3>City</h3>
-            <p>{{ flat.city }}</p>
-          </div>
-
-          <div class="info-box">
-            <h3>Street</h3>
-            <p>{{ flat.streetName }}, {{ flat.streetNumber }}</p>
-          </div>
-
-          <div class="info-box">
-            <h3>Area size</h3>
-            <p>{{ flat.areaSize }} m²</p>
-          </div>
-
-          <div class="info-box">
-            <h3>Year built</h3>
-            <p>{{ flat.yearBuilt }}</p>
-          </div>
-
-          <div class="info-box">
-            <h3>Air conditioning</h3>
-            <p>{{ flat.hasAC ? 'Yes' : 'No' }}</p>
-          </div>
-
-          <div class="info-box">
-            <h3>Available date</h3>
-            <p>{{ flat.dateAvailable }}</p>
-          </div>
+        <div class="detail-item">
+          <span class="label">Street Number</span>
+          <span class="value">{{ flat.streetNumber }}</span>
         </div>
 
-        <div class="detail-actions">
-          <button mat-stroked-button routerLink="/my-flats">
-            My Flats
-          </button>
+        <div class="detail-item">
+          <span class="label">Area Size</span>
+          <span class="value">{{ flat.areaSize }} m²</span>
+        </div>
 
-          <button mat-raised-button color="primary" [routerLink]="['/flats', flat.id, 'edit']">
-            Edit Flat
-          </button>
+        <div class="detail-item">
+          <span class="label">Rent Price</span>
+          <span class="value">${{ flat.rentPrice }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="label">Year Built</span>
+          <span class="value">{{ flat.yearBuilt }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="label">Air Conditioning</span>
+          <span class="value">{{ flat.hasAC ? 'Yes' : 'No' }}</span>
+        </div>
+
+        <div class="detail-item">
+          <span class="label">Date Available</span>
+          <span class="value">{{ flat.dateAvailable | date:'yyyy-MM-dd' }}</span>
         </div>
       </div>
-    </div>
+    </mat-card>
+
+    @if (flat.id) {
+      <app-flat-messages [flatId]="flat.id" [isOwner]="isOwner"></app-flat-messages>
+    }
   </div>
-</div>
+}

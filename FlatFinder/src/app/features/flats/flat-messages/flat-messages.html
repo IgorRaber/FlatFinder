@@ -1,1 +1,72 @@
-<p>flat-messages works!</p>
+<mat-card class="messages-card">
+  <div class="messages-header">
+    <div>
+      <h3>Messages</h3>
+
+      @if (isOwner) {
+        <p class="helper-text">You are the owner. You can only read messages.</p>
+      } @else {
+        <p class="helper-text">You only see the messages you sent about this flat.</p>
+      }
+    </div>
+  </div>
+
+  @if (!isOwner) {
+    <form class="message-form" (submit)="$event.preventDefault(); sendMessage()">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Write your message</mat-label>
+        <textarea
+          matInput
+          rows="5"
+          name="newMessage"
+          [(ngModel)]="newMessage">
+        </textarea>
+      </mat-form-field>
+
+      <div class="form-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          [disabled]="sending">
+          {{ sending ? 'Sending...' : 'Send message' }}
+        </button>
+      </div>
+    </form>
+
+    <mat-divider></mat-divider>
+  }
+
+  @if (loading) {
+    <div class="center-state">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+  } @else if (errorMessage) {
+    <div class="empty-state">
+      <p>{{ errorMessage }}</p>
+    </div>
+  } @else if (messages.length === 0) {
+    <div class="empty-state">
+      <p>No messages yet.</p>
+    </div>
+  } @else {
+    <div class="message-list">
+      @for (message of messages; track message.id) {
+        <div class="message-item">
+          <div class="message-top">
+            <div>
+              <strong>{{ message.senderName }}</strong>
+              <div class="email">{{ message.senderEmail }}</div>
+            </div>
+
+            <span class="message-date">
+              {{ message.createdAt?.toDate() | date:'short' }}
+            </span>
+          </div>
+
+          <p class="message-content">{{ message.content }}</p>
+        </div>
+      }
+    </div>
+  }
+</mat-card>
