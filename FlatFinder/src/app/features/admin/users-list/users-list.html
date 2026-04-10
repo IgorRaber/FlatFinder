@@ -1,1 +1,142 @@
-<p>users-list works!</p>
+<div class="content-header">
+  <div>
+    <h1>All users</h1>
+    <p>Manage registered users and admin permissions.</p>
+  </div>
+
+  <button mat-stroked-button routerLink="/home">
+    Back to Home
+  </button>
+</div>
+
+<div class="filters-card">
+  <div class="filters-grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Search user</mat-label>
+      <input
+        matInput
+        placeholder="Name or email"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+        name="searchTerm"
+      />
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>User type</mat-label>
+      <mat-select [(ngModel)]="userType" (ngModelChange)="applyFilters()" name="userType">
+        <mat-option value="">All</mat-option>
+        <mat-option value="password">Email / Password</mat-option>
+        <mat-option value="google">Google</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Admin</mat-label>
+      <mat-select [(ngModel)]="isAdminFilter" (ngModelChange)="applyFilters()" name="isAdminFilter">
+        <mat-option value="">All</mat-option>
+        <mat-option value="yes">Yes</mat-option>
+        <mat-option value="no">No</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Min age</mat-label>
+      <input matInput type="number" [(ngModel)]="minAge" (ngModelChange)="applyFilters()" name="minAge" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Max age</mat-label>
+      <input matInput type="number" [(ngModel)]="maxAge" (ngModelChange)="applyFilters()" name="maxAge" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Sort by</mat-label>
+      <mat-select [(ngModel)]="sortBy" (ngModelChange)="applyFilters()" name="sortBy">
+        <mat-option value="">Default</mat-option>
+        <mat-option value="firstName">First name</mat-option>
+        <mat-option value="lastName">Last name</mat-option>
+        <mat-option value="flatsCount">Flats count</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="filters-actions">
+    <button mat-stroked-button type="button" (click)="resetFilters()">
+      Reset filters
+    </button>
+  </div>
+</div>
+
+<div class="users-panel">
+  <div class="panel-header">
+    <h2>Registered users</h2>
+    <mat-chip-set>
+      <mat-chip>{{ users.length }} results</mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <div class="panel-inner" [class.panel-empty]="users.length === 0">
+    @if (users.length === 0) {
+      <div class="empty-state">
+        <mat-icon>group</mat-icon>
+        <h3>No users found</h3>
+        <p>This area will display all registered users.</p>
+      </div>
+    } @else {
+      <div class="users-list">
+        @for (user of users; track user.id) {
+          <mat-card class="user-card">
+            <div class="user-card-content">
+              <div class="user-top">
+                <div>
+                  <h3>{{ user.firstName }} {{ user.lastName }}</h3>
+                  <p>{{ user.email }}</p>
+                </div>
+
+                <div class="user-badges">
+                  <span class="badge">{{ getAge(user.birthDate) }} years</span>
+                  <span class="badge">{{ user.flatsCount || 0 }} flats</span>
+                  <span class="badge admin" *ngIf="user.isAdmin">Admin</span>
+                </div>
+              </div>
+
+              <div class="user-actions">
+                <button mat-stroked-button [routerLink]="['/admin/users', user.id]">
+                View Profile
+                </button>
+
+                <button
+                  *ngIf="!user.isAdmin"
+                  mat-stroked-button
+                  color="primary"
+                  (click)="makeAdmin(user.id)"
+                >
+                  Grant Admin
+                </button>
+
+                <button
+                  *ngIf="user.isAdmin"
+                  mat-stroked-button
+                  color="accent"
+                  (click)="removeAdmin(user.id)"
+                >
+                  Remove Admin
+                </button>
+
+                <button
+                  mat-stroked-button
+                  color="warn"
+                  (click)="deleteUser(user.id)"
+                >
+                  Remove User
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+</div>

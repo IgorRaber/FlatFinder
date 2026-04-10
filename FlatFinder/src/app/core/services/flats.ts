@@ -91,6 +91,24 @@ export class FlatsService {
     );
   }
 
+  async getFlatsByOwnerId(ownerId: string): Promise<Flat[]> {
+    const q = query(
+      this.flatsCollection,
+      where('ownerId', '==', ownerId)
+    );
+
+    const snapshot = await getDocs(q);
+
+    const flats = snapshot.docs.map(docItem => ({
+      id: docItem.id,
+      ...docItem.data()
+    })) as Flat[];
+
+    return flats.sort((a, b) => {
+      return this.getCreatedAtTime(b.createdAt) - this.getCreatedAtTime(a.createdAt);
+    });
+  }
+
   private getCreatedAtTime(value: any): number {
     if (!value) return 0;
 

@@ -1,1 +1,114 @@
-<p>user-detail works!</p>
+<div class="content-header">
+  <div>
+    <h1>User Details</h1>
+    <p>View detailed information about this user and their published flats.</p>
+  </div>
+
+  <button mat-stroked-button routerLink="/admin/users">
+    Back
+  </button>
+</div>
+
+@if (isLoading) {
+  <div class="detail-card">
+    <p>Loading user...</p>
+  </div>
+} @else if (errorMessage) {
+  <div class="detail-card">
+    <p>{{ errorMessage }}</p>
+  </div>
+} @else if (!user) {
+  <div class="detail-card">
+    <p>User not found.</p>
+  </div>
+} @else {
+  <div class="detail-card">
+    <div class="profile-header">
+      <mat-icon>person</mat-icon>
+
+      <div>
+        <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+        <p>{{ user.email }}</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info">
+        <span>Age</span>
+        <strong>{{ getAge(user.birthDate) }}</strong>
+      </div>
+
+      <div class="info">
+        <span>Flats</span>
+        <strong>{{ userFlats.length }}</strong>
+      </div>
+
+      <div class="info">
+        <span>Admin</span>
+        <strong>{{ user.isAdmin ? 'Yes' : 'No' }}</strong>
+      </div>
+
+      <div class="info">
+        <span>Provider</span>
+        <strong>{{ user.provider === 'google' ? 'Google' : 'Email' }}</strong>
+      </div>
+
+      <div class="info">
+        <span>First name</span>
+        <strong>{{ user.firstName }}</strong>
+      </div>
+
+      <div class="info">
+        <span>Last name</span>
+        <strong>{{ user.lastName }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="flats-section">
+    <div class="section-header">
+      <h2>Published Flats</h2>
+      <span class="count-chip">{{ userFlats.length }} flats</span>
+    </div>
+
+    @if (userFlats.length === 0) {
+      <div class="empty-flats">
+        <mat-icon>home_work</mat-icon>
+        <h3>No flats published</h3>
+        <p>This user has not published any flats yet.</p>
+      </div>
+    } @else {
+      <div class="flats-list">
+        @for (flat of userFlats; track flat.id) {
+          <mat-card class="flat-card">
+            <div class="flat-card-image">
+              <mat-icon>home_work</mat-icon>
+            </div>
+
+            <div class="flat-card-content">
+              <div class="flat-card-top">
+                <div>
+                  <h3>${{ flat.rentPrice }}</h3>
+                  <p>{{ flat.streetNumber }} {{ flat.streetName }}, {{ flat.city }}</p>
+                </div>
+              </div>
+
+              <div class="flat-meta">
+                <span>{{ flat.areaSize }} m²</span>
+                <span>Built in {{ flat.yearBuilt }}</span>
+                <span>{{ flat.hasAC ? 'AC included' : 'No AC' }}</span>
+              </div>
+
+              <div class="flat-footer">
+                <span>Available: {{ flat.dateAvailable | date:'mediumDate' }}</span>
+                <button mat-stroked-button [routerLink]="['/flats', flat.id]">
+                  View Flat
+                </button>
+              </div>
+            </div>
+          </mat-card>
+        }
+      </div>
+    }
+  </div>
+}
