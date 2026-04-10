@@ -118,16 +118,16 @@ export class FlatSearch implements OnInit, OnDestroy {
     });
   }
 
-  openFlat(flatId: string): void {
-  this.dialog.open(FlatDetail, {
-    width: '1000px',
-    maxWidth: '92vw',
-    maxHeight: '90vh',
-    autoFocus: false,
-    panelClass: 'flat-detail-dialog',
-    data: { flatId }
-  });
-}
+  openFlatDetail(flatId: string): void {
+    this.dialog.open(FlatDetail, {
+      data: { flatId, showMessages: true },
+      width: '960px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'flat-detail-dialog-panel'
+    });
+  }
 
   applyFilters(): void {
     let filtered = [...this.allFlats];

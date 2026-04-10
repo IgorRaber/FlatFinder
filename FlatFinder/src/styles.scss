@@ -36,4 +36,10 @@ body {
   margin: 0;
   height: 100%;
 }
+
+.flat-detail-dialog-panel .mat-mdc-dialog-surface {
+  border-radius: 28px !important;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18) !important;
+}
 /* You can add global styles to this file, and also import other style files */

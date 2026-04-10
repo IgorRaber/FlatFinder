@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { publicGuard } from './core/guards/public-guard';
+import { adminGuard } from './core/guards/admin-guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -72,8 +73,9 @@ export const routes: Routes = [
       },
       {
         path: 'admin/users',
+        canActivate: [adminGuard],
         loadComponent: () =>
-          import('./features/admin/users-list/users-list').then((m) => m.UsersList)
+          import('./features/admin/users-list/users-list').then(m => m.UsersList)
       },
       {
         path: 'admin/users/:id',

@@ -61,3 +61,36 @@
 .logout-btn {
   margin-top: auto;
 }
+
+.nav-notification {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0.25rem 0 1rem;
+}
+
+.notification-btn {
+  color: #cbd5e1;
+}
+
+.notification-btn mat-icon {
+  color: #cbd5e1;
+}
+
+.notification-item {
+  cursor: default;
+  opacity: 0.85;
+
+  mat-icon {
+    color: #cbd5e1;
+  }
+}
+
+.notification-item.has-unread {
+  mat-icon {
+    color: #f59e0b;
+  }
+
+  span {
+    color: #fbbf24;
+  }
+}

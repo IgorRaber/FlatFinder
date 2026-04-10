@@ -37,13 +37,17 @@ import { FlatMessages } from '../flat-messages/flat-messages';
 })
 export class FlatDetail implements OnInit, OnChanges {
   @Input() flatId = '';
+  @Input() showMessages = true;
 
   private flatsService = inject(FlatsService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
-  private dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as { flatId?: string } | null;
+  private dialogData = inject(MAT_DIALOG_DATA, { optional: true }) as
+    | { flatId?: string; showMessages?: boolean }
+    | null;
+
   public dialogRef = inject(MatDialogRef<FlatDetail>, { optional: true });
 
   flat: Flat | null = null;
@@ -59,6 +63,14 @@ export class FlatDetail implements OnInit, OnChanges {
 
   get resolvedFlatId(): string {
     return this.flatId || this.dialogData?.flatId || '';
+  }
+
+  get resolvedShowMessages(): boolean {
+    if (typeof this.dialogData?.showMessages === 'boolean') {
+      return this.dialogData.showMessages;
+    }
+
+    return this.showMessages;
   }
 
   async ngOnInit(): Promise<void> {
@@ -114,9 +126,7 @@ export class FlatDetail implements OnInit, OnChanges {
   }
 
   goToEdit(): void {
-    if (!this.flat?.id) {
-      return;
-    }
+    if (!this.flat?.id) return;
 
     this.dialogRef?.close();
     this.router.navigate([this.editRouteBase, this.flat.id]);

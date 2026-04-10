@@ -1,73 +1,109 @@
-:host {
-  display: block;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-}
-
 .messages-card {
+  background: #fdfcff;
   border-radius: 20px;
-  padding: 1.5rem;
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 100%;
+  padding: 1rem;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: none;
 }
 
-.messages-header,
-.message-top,
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+.messages-header {
+  margin-bottom: 0.85rem;
+
+  h3 {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #111827;
+  }
 }
 
-.helper-text,
-.email,
-.message-date {
-  color: #666;
+.helper-text {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.9rem;
 }
 
 .message-form {
-  margin: 1rem 0;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .full-width {
   width: 100%;
 }
 
-.message-list {
-  display: grid;
-  gap: 1rem;
-  margin-top: 1rem;
-  width: 100%;
-}
-
-.message-item {
-  border: 1px solid #e6e6e6;
-  border-radius: 12px;
-  padding: 1rem;
-  box-sizing: border-box;
-}
-
-.message-top {
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
-}
-
-.message-content {
-  margin: 0;
-  white-space: pre-wrap;
-  line-height: 1.5;
-  word-break: break-word;
+.form-actions {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .center-state,
 .empty-state {
+  min-height: 90px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 2rem 1rem;
+  justify-content: center;
   text-align: center;
+  padding: 1rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.message-item {
+  border: 1px solid rgba(15, 23, 42, 0.07);
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 0.85rem 0.95rem;
+}
+
+.message-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.45rem;
+
+  strong {
+    color: #111827;
+    font-size: 0.94rem;
+  }
+}
+
+.email {
+  color: #6b7280;
+  font-size: 0.82rem;
+  margin-top: 0.1rem;
+}
+
+.message-date {
+  color: #6b7280;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.message-content {
+  margin: 0;
+  color: #111827;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .message-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

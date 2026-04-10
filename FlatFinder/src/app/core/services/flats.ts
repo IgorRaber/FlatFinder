@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {
   addDoc,
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
@@ -12,6 +13,7 @@ import {
   serverTimestamp,
   updateDoc,
   where,
+  writeBatch,
   QuerySnapshot,
   DocumentData,
   QueryDocumentSnapshot
@@ -109,26 +111,34 @@ export class FlatsService {
     flatId: string,
     currentUserId: string,
     isOwner: boolean,
-    callback: (messages: FlatMessage[]) => void
+    callback: (messages: FlatMessage[]) => void,
+    onError?: (error: unknown) => void
   ): () => void {
     const messagesCollection = collection(db, 'flats', flatId, 'messages');
 
     const messagesQuery = isOwner
       ? query(messagesCollection, orderBy('createdAt', 'desc'))
-      : query(
-          messagesCollection,
-          where('senderId', '==', currentUserId),
-          orderBy('createdAt', 'desc')
+      : query(messagesCollection, where('senderId', '==', currentUserId));
+
+    return onSnapshot(
+      messagesQuery,
+      (snapshot: QuerySnapshot<DocumentData>) => {
+        let messages = snapshot.docs.map((messageDoc: QueryDocumentSnapshot<DocumentData>) => ({
+          id: messageDoc.id,
+          ...messageDoc.data()
+        })) as FlatMessage[];
+
+        messages = messages.sort(
+          (a, b) => this.getCreatedAtTime(b.createdAt) - this.getCreatedAtTime(a.createdAt)
         );
 
-    return onSnapshot(messagesQuery, (snapshot: QuerySnapshot<DocumentData>) => {
-      const messages = snapshot.docs.map((messageDoc: QueryDocumentSnapshot<DocumentData>) => ({
-        id: messageDoc.id,
-        ...messageDoc.data()
-      })) as FlatMessage[];
-
-      callback(messages);
-    });
+        callback(messages);
+      },
+      (error) => {
+        console.error('Error listening to messages:', error);
+        onError?.(error);
+      }
+    );
   }
 
   async createMessage(flatId: string, content: string): Promise<void> {
@@ -138,16 +148,62 @@ export class FlatsService {
       throw new Error('User not authenticated');
     }
 
+    const flat = await this.getFlatById(flatId);
+
+    if (!flat) {
+      throw new Error('Flat not found');
+    }
+
     const messagesCollection = collection(db, 'flats', flatId, 'messages');
+    const isOwner = currentUser.uid === flat.ownerId;
 
     await addDoc(messagesCollection, {
       flatId,
+      ownerId: flat.ownerId,
       senderId: currentUser.uid,
       senderName: currentUser.displayName || 'User',
       senderEmail: currentUser.email || '',
       content: content.trim(),
+      readByOwner: isOwner,
       createdAt: serverTimestamp()
     });
+  }
+
+  listenUnreadOwnerMessages(
+    ownerId: string,
+    callback: (count: number) => void
+  ): () => void {
+    const messagesGroup = collectionGroup(db, 'messages');
+    const unreadQuery = query(
+      messagesGroup,
+      where('ownerId', '==', ownerId),
+      where('readByOwner', '==', false)
+    );
+
+    return onSnapshot(unreadQuery, (snapshot) => {
+      callback(snapshot.size);
+    });
+  }
+
+  async markOwnerMessagesAsRead(ownerId: string): Promise<void> {
+    const messagesGroup = collectionGroup(db, 'messages');
+    const unreadQuery = query(
+      messagesGroup,
+      where('ownerId', '==', ownerId),
+      where('readByOwner', '==', false)
+    );
+
+    const snapshot = await getDocs(unreadQuery);
+
+    if (snapshot.empty) return;
+
+    const batch = writeBatch(db);
+
+    snapshot.docs.forEach((messageDoc) => {
+      batch.update(messageDoc.ref, { readByOwner: true });
+    });
+
+    await batch.commit();
   }
 
   async updateFlat(id: string, data: Partial<Flat>) {

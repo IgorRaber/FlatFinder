@@ -84,4 +84,36 @@
       </div>
     </div>
   </div>
+
+  <div *ngIf="!isLoading && isOwnProfile" class="messages-section">
+    <div class="messages-section-header">
+      <div>
+        <h2>Your Flat Messages</h2>
+        <p>Review messages sent to your published flats.</p>
+      </div>
+    </div>
+
+    <div *ngIf="ownedFlats.length === 0" class="empty-state messages-empty">
+      <mat-icon>forum</mat-icon>
+      <h3>No flats available for messages</h3>
+      <p>You need at least one published flat to receive messages.</p>
+    </div>
+
+    <div *ngIf="ownedFlats.length > 0" class="owned-flats-messages">
+      <div *ngFor="let flat of ownedFlats" class="flat-message-block">
+        <div class="flat-message-header">
+          <div>
+            <h3>{{ flat.city }} - {{ flat.streetName }}, {{ flat.streetNumber }}</h3>
+            <p>{{ flat.areaSize }} m² • Built in {{ flat.yearBuilt }} • {{ flat.hasAC ? 'AC included' : 'No AC' }}</p>
+          </div>
+
+          <div class="flat-message-price">
+            ${{ flat.rentPrice }}
+          </div>
+        </div>
+
+        <app-flat-messages [flatId]="flat.id!" [isOwner]="true"></app-flat-messages>
+      </div>
+    </div>
+  </div>
 </div>

@@ -5,10 +5,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { UsersService, AppUser } from '../../../core/services/users';
 import { FlatsService } from '../../../core/services/flats';
 import { Flat } from '../../../shared/models/flat';
+import { FlatDetail } from '../../flats/flat-detail/flat-detail';
 
 @Component({
   selector: 'app-user-detail',
@@ -18,7 +20,8 @@ import { Flat } from '../../../shared/models/flat';
     RouterLink,
     MatButtonModule,
     MatIconModule,
-    MatCardModule
+    MatCardModule,
+    MatDialogModule
   ],
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.scss'
@@ -28,6 +31,7 @@ export class UserDetail implements OnInit {
   private usersService = inject(UsersService);
   private flatsService = inject(FlatsService);
   private ngZone = inject(NgZone);
+  private dialog = inject(MatDialog);
 
   user: AppUser | null = null;
   userFlats: Flat[] = [];
@@ -69,6 +73,17 @@ export class UserDetail implements OnInit {
     }
   }
 
+  openFlatDetail(flatId: string): void {
+    this.dialog.open(FlatDetail, {
+      data: { flatId, showMessages: false },
+      width: '960px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'flat-detail-dialog-panel'
+    });
+  }
+
   getAge(birthDate: string): number {
     if (!birthDate) return 0;
 
@@ -83,15 +98,5 @@ export class UserDetail implements OnInit {
     }
 
     return age;
-  }
-
-  getCreatedAtTime(value: any): number {
-    if (!value) return 0;
-
-    if (typeof value?.toDate === 'function') {
-      return value.toDate().getTime();
-    }
-
-    return new Date(value).getTime();
   }
 }

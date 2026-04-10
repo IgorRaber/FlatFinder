@@ -1,4 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  NgZone,
+  ChangeDetectorRef
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -36,6 +42,8 @@ import { AppUser, UsersService } from '../../../core/services/users';
 export class UsersList implements OnInit {
   private usersService = inject(UsersService);
   private snackBar = inject(MatSnackBar);
+  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
 
   allUsers: AppUser[] = [];
   users: AppUser[] = [];
@@ -49,7 +57,7 @@ export class UsersList implements OnInit {
   maxFlats: number | null = null;
   sortBy = '';
 
-  isLoading = false;
+  isLoading = true;
 
   async ngOnInit(): Promise<void> {
     await this.loadUsers();
@@ -59,13 +67,26 @@ export class UsersList implements OnInit {
     this.isLoading = true;
 
     try {
-      this.allUsers = await this.usersService.getAllUsers();
-      this.applyFilters();
+      const loadedUsers = await this.usersService.getAllUsers();
+      console.log('Loaded users:', loadedUsers);
+
+      this.ngZone.run(() => {
+        this.allUsers = loadedUsers ?? [];
+        this.users = [...this.allUsers];
+        this.applyFilters();
+        this.isLoading = false;
+        this.cdr.detectChanges();
+      });
     } catch (error) {
-      console.error(error);
-      this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
-    } finally {
-      this.isLoading = false;
+      console.error('Failed to load users:', error);
+
+      this.ngZone.run(() => {
+        this.isLoading = false;
+        this.users = [];
+        this.allUsers = [];
+        this.snackBar.open('Failed to load users', 'Close', { duration: 3000 });
+        this.cdr.detectChanges();
+      });
     }
   }
 
@@ -130,9 +151,12 @@ export class UsersList implements OnInit {
       case 'flatsCount':
         filtered.sort((a, b) => (b.flatsCount || 0) - (a.flatsCount || 0));
         break;
+      default:
+        break;
     }
 
     this.users = filtered;
+    this.cdr.detectChanges();
   }
 
   resetFilters(): void {
@@ -145,6 +169,7 @@ export class UsersList implements OnInit {
     this.maxFlats = null;
     this.sortBy = '';
     this.users = [...this.allUsers];
+    this.cdr.detectChanges();
   }
 
   async makeAdmin(userId: string): Promise<void> {
@@ -171,7 +196,6 @@ export class UsersList implements OnInit {
 
   async deleteUser(userId: string): Promise<void> {
     const confirmed = window.confirm('Are you sure you want to remove this user?');
-
     if (!confirmed) return;
 
     try {

@@ -5,60 +5,46 @@
   </div>
 
   <nav class="nav-links">
-    <a
-      routerLink="/home"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      class="nav-link"
-    >
+    <div class="nav-link notification-item" [class.has-unread]="hasUnread">
+      <mat-icon [matBadge]="unreadMessagesCount" [matBadgeHidden]="unreadMessagesCount === 0" matBadgeColor="warn"
+        matBadgeSize="small">
+        notifications
+      </mat-icon>
+      <span>Notifications</span>
+    </div>
+
+    <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">
       <mat-icon>home</mat-icon>
       <span>Home</span>
     </a>
 
-    <a
-      routerLink="/profile"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <a routerLink="/profile" routerLinkActive="active" class="nav-link">
       <mat-icon>person</mat-icon>
       <span>Profile</span>
     </a>
 
-    <a
-      routerLink="/my-flats"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <a routerLink="/my-flats" routerLinkActive="active" class="nav-link">
       <mat-icon>domain</mat-icon>
       <span>My Flats</span>
     </a>
 
-    <a
-      routerLink="/favourites"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <a routerLink="/favourites" routerLinkActive="active" class="nav-link">
       <mat-icon>favorite</mat-icon>
       <span>Favourites</span>
     </a>
 
-    <a
-      routerLink="/flats/new"
-      routerLinkActive="active"
-      class="nav-link"
-    >
+    <a routerLink="/flats/new" routerLinkActive="active" class="nav-link">
       <mat-icon>add_home</mat-icon>
       <span>New Flat</span>
     </a>
 
-    <a
-      routerLink="/admin/users"
-      routerLinkActive="active"
-      class="nav-link"
-    >
-      <mat-icon>admin_panel_settings</mat-icon>
-      <span>Admin</span>
-    </a>
+    <ng-container *ngIf="isAdmin">
+      <a routerLink="/admin/users" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link">
+        <mat-icon>admin_panel_settings</mat-icon>
+        <span>Admin</span>
+      </a>
+    </ng-container>
   </nav>
 
   <button mat-stroked-button type="button" class="logout-btn" (click)="logout()">

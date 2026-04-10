@@ -58,9 +58,7 @@ export class FlatMessages implements OnChanges, OnDestroy {
   private stopMessagesListener: (() => void) | null = null;
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
-    if (!this.flatId) {
-      return;
-    }
+    if (!this.flatId) return;
 
     if (changes['flatId'] || changes['isOwner']) {
       await this.loadMessages();
@@ -74,6 +72,7 @@ export class FlatMessages implements OnChanges, OnDestroy {
   private async loadMessages(): Promise<void> {
     this.loading = true;
     this.errorMessage = '';
+    this.messages = [];
 
     try {
       const currentUser = await this.authService.getCurrentUserPromise();
@@ -97,6 +96,14 @@ export class FlatMessages implements OnChanges, OnDestroy {
           this.zone.run(() => {
             this.messages = messages;
             this.loading = false;
+            this.errorMessage = '';
+            this.cdr.detectChanges();
+          });
+        },
+        () => {
+          this.zone.run(() => {
+            this.loading = false;
+            this.errorMessage = 'Failed to load messages.';
             this.cdr.detectChanges();
           });
         }
@@ -107,12 +114,34 @@ export class FlatMessages implements OnChanges, OnDestroy {
       this.loading = false;
       this.cdr.detectChanges();
     }
+
+    
   }
 
-  async sendMessage(): Promise<void> {
-    if (this.isOwner) {
-      return;
+    getMessageDate(createdAt: any): Date | null {
+    if (!createdAt) return null;
+
+    if (typeof createdAt?.toDate === 'function') {
+      return createdAt.toDate();
     }
+
+    if (typeof createdAt?.seconds === 'number') {
+      return new Date(createdAt.seconds * 1000);
+    }
+
+    if (createdAt instanceof Date) {
+      return createdAt;
+    }
+
+    if (typeof createdAt === 'string' || typeof createdAt === 'number') {
+      return new Date(createdAt);
+    }
+
+    return null;
+  }
+  
+  async sendMessage(): Promise<void> {
+    if (this.isOwner) return;
 
     const content = this.newMessage.trim();
 

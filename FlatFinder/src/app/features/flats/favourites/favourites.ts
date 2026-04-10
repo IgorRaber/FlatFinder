@@ -66,14 +66,14 @@ export class Favourites implements OnInit, OnDestroy {
     this.unsubscribeFavourites?.();
   }
 
-  openFlat(flatId: string): void {
+  openFlatDetail(flatId: string): void {
     this.dialog.open(FlatDetail, {
-      width: '1000px',
-      maxWidth: '92vw',
+      data: { flatId, showMessages: false },
+      width: '960px',
+      maxWidth: '95vw',
       maxHeight: '90vh',
       autoFocus: false,
-      panelClass: 'flat-detail-dialog',
-      data: { flatId }
+      panelClass: 'flat-detail-dialog-panel'
     });
   }
 

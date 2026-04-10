@@ -101,8 +101,8 @@
 
               <div class="flat-footer">
                 <span>Available: {{ flat.dateAvailable | date:'mediumDate' }}</span>
-                <button mat-stroked-button [routerLink]="['/flats', flat.id]">
-                  View Flat
+                <button mat-stroked-button type="button" (click)="openFlatDetail(flat.id!)">
+                View Flat
                 </button>
               </div>
             </div>

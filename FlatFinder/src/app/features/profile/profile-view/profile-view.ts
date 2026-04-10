@@ -7,7 +7,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 
 import { AuthService } from '../../../core/services/auth';
+import { FlatsService } from '../../../core/services/flats';
 import { User as UserProfile } from '../../../shared/models/user';
+import { Flat } from '../../../shared/models/flat';
+import { FlatMessages } from '../../flats/flat-messages/flat-messages';
 
 @Component({
   selector: 'app-profile-view',
@@ -17,13 +20,15 @@ import { User as UserProfile } from '../../../shared/models/user';
     RouterLink,
     MatButtonModule,
     MatChipsModule,
-    MatIconModule
+    MatIconModule,
+    FlatMessages
   ],
   templateUrl: './profile-view.html',
   styleUrls: ['./profile-view.scss']
 })
 export class ProfileView implements OnInit {
   private authService = inject(AuthService);
+  private flatsService = inject(FlatsService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private ngZone = inject(NgZone);
@@ -31,6 +36,7 @@ export class ProfileView implements OnInit {
 
   profile: UserProfile | null = null;
   currentViewer: UserProfile | null = null;
+  ownedFlats: Flat[] = [];
 
   isLoading = true;
   isOwnProfile = false;
@@ -66,6 +72,12 @@ export class ProfileView implements OnInit {
         }
 
         this.canEdit = this.isOwnProfile || isAdmin;
+
+        if (this.isOwnProfile) {
+          this.ownedFlats = await this.flatsService.getFlatsByOwnerId(authUser.uid);
+          await this.flatsService.markOwnerMessagesAsRead(authUser.uid);
+        }
+
         this.isLoading = false;
         this.cdr.detectChanges();
       });

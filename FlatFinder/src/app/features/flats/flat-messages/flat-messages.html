@@ -28,7 +28,7 @@
           mat-raised-button
           color="primary"
           type="submit"
-          [disabled]="sending">
+          [disabled]="sending || !newMessage.trim()">
           {{ sending ? 'Sending...' : 'Send message' }}
         </button>
       </div>
@@ -59,9 +59,9 @@
               <div class="email">{{ message.senderEmail }}</div>
             </div>
 
-            <span class="message-date">
-              {{ message.createdAt?.toDate() | date:'short' }}
-            </span>
+          <span class="message-date">
+            {{ getMessageDate(message.createdAt) | date:'short' }}
+          </span>
           </div>
 
           <p class="message-content">{{ message.content }}</p>
